@@ -36,7 +36,7 @@ public class SandboxRun {
 
 
     // ❗❗❗ 云服务器里运行代码沙箱服务
-    private static final String SANDBOX_BASE_URL = "http://123.249.0.179:5050";
+    private static final String SANDBOX_BASE_URL = "http://124.70.131.122:5050";
     private static final String RUN_URI = "/run";
 
     public static final HashMap<String, Integer> RESULT_MAP_STATUS = new HashMap<>();

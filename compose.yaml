@@ -1,0 +1,47 @@
+name: oj-backend
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=wxc123...
+      - MYSQL_ROOT_HOST=%
+    networks:
+      - oj-backend
+  redis:
+    image: redis:7.2.4
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379" 
+    volumes:
+      - redis_data:/data
+      - /conf/redis/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - oj-backend
+  rabbitmq:
+    image:  rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=wxc123...
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - oj-backend
+volumes:
+  mysql_data:
+  redis_data:
+  rabbitmq_data:
+networks:
+  oj-backend:
