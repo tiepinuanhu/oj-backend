@@ -19,7 +19,7 @@ import java.util.Map;
  * @Date: 2025年3月25日19点40分
  */
 @Data
-@Slf4j(topic = "JWTutils    ")
+@Slf4j
 @Component
 @ConfigurationProperties(prefix = "jwt.token") // 配置读取属性的前缀
 public class JwtUtils {

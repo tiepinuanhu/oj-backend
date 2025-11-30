@@ -568,8 +568,6 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
      * 取消报名
      * todo:
      *  1. 只有当比赛status = 0时才可以取消报名
-     *
-     * @param request
      * @param contestId
      * @return
      */

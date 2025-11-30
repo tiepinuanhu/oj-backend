@@ -73,7 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         synchronized (userAccount.intern()) {
             // 账户不能重复
-            var queryWrapper = new LambdaQueryWrapper<User>();
+            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>();
             queryWrapper.eq(User::getUserAccount, userAccount);
             long count = this.baseMapper.selectCount(queryWrapper);
             if (count > 0) {

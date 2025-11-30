@@ -1,9 +1,6 @@
 package com.wxc.oj.sandbox.dto;
 
-import cn.hutool.json.JSONObject;
-import com.wxc.oj.sandbox.enums.SandBoxResponseStatus;
 import com.wxc.oj.sandbox.model.FileError;
-import jdk.jshell.Snippet;
 import lombok.Data;
 
 import java.util.ArrayList;
