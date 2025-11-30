@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.constant.CommonConstant;
+import com.wxc.oj.constant.RedisConstant;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.mapper.UserMapper;
 import com.wxc.oj.model.dto.user.UserQueryRequest;
@@ -123,7 +124,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 使用userID生成载荷
         String userJsonStr = JSONUtil.toJsonStr(user);
         // 用户登陆成功后, 将用户信息保存到redis中, 用户id作为key, 用户json字符串作为value
-        stringRedisTemplate.opsForValue().set("user:" + user.getId(), userJsonStr, 7, TimeUnit.DAYS);
+        stringRedisTemplate.opsForValue().set(RedisConstant.USER_KEY + user.getId(),
+                userJsonStr, 7, TimeUnit.DAYS);
         UserVO userVO = new UserVO();
         copyProperties(user, userVO);
 //        String token = JwtUtils.createToken(userVO);

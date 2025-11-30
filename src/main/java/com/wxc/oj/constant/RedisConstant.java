@@ -6,4 +6,5 @@ package com.wxc.oj.constant;
  */
 public class RedisConstant {
     public static String PROBLEM_KEY = "oj:cache:problem";
+    public static String USER_KEY = "oj:cache:user";
 }
