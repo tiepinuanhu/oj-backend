@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.constant.CommonConstant;
+import com.wxc.oj.constant.RedisConstant;
 import com.wxc.oj.enums.problem.ProblemLevel;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.exception.ThrowUtils;
@@ -58,7 +59,6 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
     ProblemTagService problemTagService;
 
 
-    private static final String PROBLEM_KEY = "problem:";
     @Resource
     StringRedisTemplate stringRedisTemplate;
 
@@ -69,14 +69,14 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
         if (problemId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        if (stringRedisTemplate.hasKey(PROBLEM_KEY + problemId)) {
-            String s = stringRedisTemplate.opsForValue().get(PROBLEM_KEY + problemId);
+        if (stringRedisTemplate.hasKey(RedisConstant.PROBLEM_KEY + problemId)) {
+            String s = stringRedisTemplate.opsForValue().get(RedisConstant.PROBLEM_KEY + problemId);
             ProblemVO problemVO = JSONUtil.toBean(s, ProblemVO.class);
             return problemVO;
         }
         Problem problem = this.getById(problemId);
         ProblemVO problemVOWithContent = this.getProblemVOWithContent(problem);
-        stringRedisTemplate.opsForValue().set(PROBLEM_KEY + problemId, JSONUtil.toJsonStr(problemVOWithContent));
+        stringRedisTemplate.opsForValue().set(RedisConstant.PROBLEM_KEY + problemId, JSONUtil.toJsonStr(problemVOWithContent));
         if (problem == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }

@@ -33,8 +33,8 @@ public class RabbitConfig {
     @Bean("submission")     //定义消息队列
     public Queue queue(){
         return QueueBuilder
-          				.durable("submission")   //非持久化类型
-          				.build();
+                    .durable("submission")   //非持久化类型
+                    .build();
     }
 
     /**

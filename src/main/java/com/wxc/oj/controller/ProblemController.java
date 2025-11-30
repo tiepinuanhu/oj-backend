@@ -129,19 +129,19 @@ public class ProblemController {
         return ResultUtils.success(problemVO);
     }
 
-    @PutMapping("create")
-    @AuthCheck(mustRole = ADMIN)
-    public BaseResponse<Long> createProblem(@RequestParam Long userId) {
-        Problem problem = new Problem();
-        problem.setTitle("temp");
-        problem.setContent("");
-        problem.setLevel(0);
-        problem.setJudgeConfig(JSONUtil.toJsonStr(new JudgeConfig()));
-        problem.setUserId(userId);
-        problem.setIsPublic(0);
-        boolean save = problemService.save(problem);
-        return ResultUtils.success(problem.getId());
-    }
+//    @PutMapping("create")
+//    @AuthCheck(mustRole = ADMIN)
+//    public BaseResponse<Long> createProblem(@RequestParam Long userId) {
+//        Problem problem = new Problem();
+//        problem.setTitle("temp");
+//        problem.setContent("");
+//        problem.setLevel(0);
+//        problem.setJudgeConfig(JSONUtil.toJsonStr(new JudgeConfig()));
+//        problem.setUserId(userId);
+//        problem.setIsPublic(0);
+//        boolean save = problemService.save(problem);
+//        return ResultUtils.success(problem.getId());
+//    }
 
     /**
      * 添加题目（基本信息，不包含样例）

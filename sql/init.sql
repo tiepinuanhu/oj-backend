@@ -7,61 +7,62 @@ create database if not exists db_oj;
 use db_oj;
 
 -- 用户表
-CREATE TABLE `user` (
-    `id` bigint NOT NULL COMMENT '用户ID（雪花算法生成）',
-    `user_account` varchar(50) NOT NULL COMMENT '用户账号（登录用）',
-    `user_password` varchar(255) NOT NULL COMMENT '用户密码（加密存储）',
-    `user_name` varchar(100) NOT NULL COMMENT '用户昵称',
-    `union_id` varchar(255) DEFAULT NULL COMMENT '第三方登录联合ID（如微信、QQ等）',
-    `user_avatar` varchar(255) DEFAULT NULL COMMENT '用户头像URL',
-    `user_profile` varchar(500) DEFAULT NULL COMMENT '用户简介',
-    `user_role` int NOT NULL COMMENT '用户角色（0-普通用户，1-管理员等）',
-    `create_time` datetime NOT NULL COMMENT '创建时间（注册时间）',
-    `update_time` datetime NOT NULL COMMENT '更新时间（信息最后修改时间）',
-    `is_deleted` int NOT NULL DEFAULT 0 COMMENT '逻辑删除标志（0-未删除，1-已删除）',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_user_account` (`user_account`) COMMENT '确保用户账号唯一（不可重复注册）',
-    KEY `idx_user_role` (`user_role`) COMMENT '按角色筛选用户（如查询所有管理员）',
-    KEY `idx_create_time` (`create_time`) COMMENT '按注册时间查询用户'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表（存储系统用户基本信息）';
+create table user
+(
+    id            bigint                                 not null comment '用户ID（雪花算法生成）'
+        primary key,
+    user_account  varchar(50)                            not null comment '用户账号（登录用）',
+    user_password varchar(255)                           not null comment '用户密码（加密存储）',
+    user_name     varchar(100) default 'momo'            not null comment '用户昵称',
+    union_id      varchar(255)                           null comment '第三方登录联合ID（如微信、QQ等）',
+    user_avatar   varchar(255)                           null comment '用户头像URL',
+    user_profile  varchar(500)                           null comment '用户简介',
+    user_role     int          default 0                 not null comment '用户角色（0-普通用户，1-管理员等）',
+    create_time   datetime     default (now())           not null comment '创建时间（注册时间）',
+    update_time   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间（信息最后修改时间）',
+    is_deleted    int          default 0                 not null comment '逻辑删除标志（0-未删除，1-已删除）',
+    constraint uk_user_account
+        unique (user_account) comment '确保用户账号唯一（不可重复注册）'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  comment '用户表（存储系统用户基本信息）';
 -- 题目表
-CREATE TABLE `problem` (
-    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键自增',
-    `title` varchar(255) NOT NULL COMMENT '题目标题',
-    `content` text NOT NULL COMMENT '题目内容（包含题干、输入输出描述、示例等）',
-    `level` int NOT NULL COMMENT '题目难度（如1-简单、2-中等、3-困难）',
-    `submitted_num` int NOT NULL DEFAULT 0 COMMENT '总提交次数',
-    `accepted_num` int NOT NULL DEFAULT 0 COMMENT '通过次数',
-    `judge_config` text DEFAULT NULL COMMENT '评测配置（JSON格式，如时间限制、内存限制等）',
-    `user_id` bigint NOT NULL COMMENT '题目创建者ID（关联用户表）',
-    `create_time` datetime NOT NULL COMMENT '创建时间',
-    `update_time` datetime NOT NULL COMMENT '更新时间',
-    `is_deleted` int NOT NULL DEFAULT 0 COMMENT '逻辑删除标志（0-未删除，1-已删除）',
-    `is_public` int NOT NULL DEFAULT 0 COMMENT '是否公开（0-私有，1-公开）',
-    PRIMARY KEY (`id`),
+create table problem
+(
+    id            bigint auto_increment comment '主键自增'
+        primary key,
+    title         varchar(255)                       not null comment '题目标题',
+    content       text                               not null comment '题目内容（包含题干、输入输出描述、示例等）',
+    level         int                                not null comment '题目难度（如1-简单、2-中等、3-困难）',
+    submitted_num int      default 0                 not null comment '总提交次数',
+    accepted_num  int      default 0                 not null comment '通过次数',
+    judge_config  text                               null comment '评测配置（JSON格式，如时间限制、内存限制等）',
+    user_id       bigint                             not null comment '题目创建者ID（关联用户表）',
+    create_time   datetime default (now())           not null comment '创建时间',
+    update_time   datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_deleted    int      default 0                 not null comment '逻辑删除标志（0-未删除，1-已删除）',
+    is_public     int      default 0                 not null comment '是否公开（0-私有，1-公开）',
     KEY `idx_user_id` (`user_id`) COMMENT '按创建者ID查询题目',
     KEY `idx_level` (`level`) COMMENT '按难度筛选题目',
     KEY `idx_is_public` (`is_public`) COMMENT '筛选公开/私有题目',
     KEY `idx_title` (`title`) COMMENT '按标题模糊查询题目'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='题目表（存储编程题的基本信息）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4    comment '题目表（存储编程题的基本信息）';
 -- 提交表
-CREATE TABLE `submission` (
-    `id` bigint NOT NULL COMMENT '提交记录ID（雪花算法生成）',
-    `user_id` bigint NOT NULL COMMENT '提交用户ID',
-    `problem_id` bigint NOT NULL COMMENT '题目ID',
-    `source_code` text NOT NULL COMMENT '提交的源代码',
-    `submission_result` text DEFAULT NULL COMMENT '提交结果（JSON字符串）',
-    `status` int DEFAULT NULL COMMENT '评测状态码（如0-待评测、1-通过等）',
-    `status_description` varchar(255) DEFAULT NULL COMMENT '评测状态描述（如"Accepted"、"Wrong Answer"）',
-    `language` varchar(50) NOT NULL COMMENT '编程语言（如java、python、c++等）',
-    `create_time` datetime NOT NULL COMMENT '创建时间（提交时间）',
-    `update_time` datetime NOT NULL COMMENT '更新时间（最后评测时间）',
-    `is_deleted` int NOT NULL DEFAULT 0 COMMENT '逻辑删除标志（0-未删除，1-已删除）',
-    PRIMARY KEY (`id`),
+create table submission
+(
+    id                 bigint                             not null comment '提交记录ID（雪花算法生成）'
+        primary key,
+    user_id            bigint                             not null comment '提交用户ID',
+    problem_id         bigint                             not null comment '题目ID',
+    source_code        text                               not null comment '提交的源代码',
+    submission_result  text                               null comment '提交结果（JSON字符串）',
+    status             int                                null comment '评测状态码（如0-待评测、1-通过等）',
+    status_description varchar(255)                       null comment '评测状态描述（如"Accepted"、"Wrong Answer"）',
+    language           varchar(50)                        not null comment '编程语言（如java、python、c++等）',
+    create_time        datetime default (now())           not null comment '创建时间（提交时间）',
+    update_time        datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间（最后评测时间）',
+    is_deleted         int      default 0                 not null comment '逻辑删除标志（0-未删除，1-已删除）',
     KEY `idx_user_id` (`user_id`) COMMENT '按用户ID查询提交记录',
-    KEY `idx_problem_id` (`problem_id`) COMMENT '按题目ID查询提交记录',
-    KEY `idx_create_time` (`create_time`) COMMENT '按提交时间排序查询'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='代码提交记录表';
+    KEY `idx_problem_id` (`problem_id`) COMMENT '按题目ID查询提交记录'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='代码提交记录表';
 -- 比赛表
 CREATE TABLE `contest` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键自增',
@@ -142,3 +143,15 @@ CREATE TABLE `tag` (
    PRIMARY KEY (`id`),
    KEY `idx_name` (`name`) COMMENT '按标签名称查询索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签表';
+
+-- 题目标签和题目的中间表
+CREATE TABLE `problem_tag` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键自增',
+    `problem_id` bigint NOT NULL COMMENT '题目ID（关联problem表id）',
+    `tag_id` int NOT NULL COMMENT '标签ID（关联tag表id）',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '关联创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_problem_tag` (`problem_id`, `tag_id`) COMMENT '唯一约束：避免同一题目重复关联同一标签',
+    CONSTRAINT `fk_problem_tag_problem` FOREIGN KEY (`problem_id`) REFERENCES `problem` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_problem_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='题目-标签关联表（实现多对多关系）';

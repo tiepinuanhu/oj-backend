@@ -88,7 +88,7 @@ public class JudgeServiceImpl implements JudgeService {
     public static final Long MEMORY_LIMIT = 536870912L;
 
     public static final String QUEUE = "submission";
-    public static final String DATA_PATH = "F:\\oj\\oj-backend\\src\\main\\resources\\data";
+    public static final String DATA_PATH = "C:\\Users\\WangXinchao\\Desktop\\oj-backend\\src\\main\\resources\\data";
     public static final Integer PROC_LIMIT = 50;
 
     @RabbitListener(queues = QUEUE, messageConverter = "jacksonConverter", concurrency = "20")
