@@ -68,5 +68,6 @@ server:
 
 base-url:
     sandbox: http://124.70.131.122:5050
-    imgbb: https://api.imgbb.com/1/upload
+api-key:
+    imgbb: fb45ec0a10c46133498a09b082867203
 

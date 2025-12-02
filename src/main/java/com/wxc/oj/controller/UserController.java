@@ -14,6 +14,7 @@ import com.wxc.oj.model.dto.user.*;
 import com.wxc.oj.model.po.User;
 import com.wxc.oj.model.vo.login.LoginVO;
 import com.wxc.oj.model.vo.UserVO;
+import com.wxc.oj.openFeign.ImgBBFeignClient;
 import com.wxc.oj.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -95,15 +96,21 @@ public class UserController {
 //    private static final String IMGBB_BASE_URL = "http://124.70.131.122:5050";
 
 
-
-
+    /**
+     * 用户上传头像
+     */
     @Resource
-    private RestTemplate restTemplate;
+    private ImgBBFeignClient imgBBFeignClient;
+
+
+    @Value("${api-key.imgbb}")
+    private String imgbbApiKey;
+
     @PostMapping("/avatar/upload")
     public BaseResponse<String> uploadAvatar(
-            MultipartFile file,
-            HttpServletRequest request) {
-        ImgbbResponse imgbbResponse = userService.uploadAvatar(file, request);
+            @RequestParam("avatar") MultipartFile file) {
+        // 使用OpenFeign 调用ImgBB的API接口，上传图片，并获取头像的URL
+        ImgbbResponse imgbbResponse = imgBBFeignClient.uploadImg(imgbbApiKey, file);
         return ResultUtils.success(imgbbResponse.getData().getUrl());
     }
 
