@@ -19,8 +19,10 @@ import com.wxc.oj.model.po.ContestSubmission;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.model.queueMessage.SubmissionMessage;
+import com.wxc.oj.openFeign.SandboxFeignClient;
 import com.wxc.oj.sandbox.SandboxRun;
 import com.wxc.oj.sandbox.dto.Cmd;
+import com.wxc.oj.sandbox.dto.Result;
 import com.wxc.oj.sandbox.dto.SandBoxRequest;
 import com.wxc.oj.sandbox.dto.SandBoxResponse;
 import com.wxc.oj.sandbox.enums.SandBoxResponseStatus;
@@ -54,6 +56,9 @@ public class JudgeServiceImpl implements JudgeService {
     /**
      * 用于访问resources/data/xxx/
      */
+
+    @Resource
+    private SandboxFeignClient sandboxFeignClient;
 
 
     @Resource
@@ -91,7 +96,7 @@ public class JudgeServiceImpl implements JudgeService {
 
     /**
      * 编译CPP文件, 返回代码沙箱保存的可执行文件的ID
-     * @param sourceCode
+     * @param
      * @return
      * @throws IOException
      */
@@ -138,14 +143,14 @@ public class JudgeServiceImpl implements JudgeService {
 
 
 //        String exeId = compileCppFile(sourceCode);
-        SandBoxResponse sandBoxResponse = compileCode(sourceCode, LanguageConfigs.CPP);
+        Result compileResult = compileCode(sourceCode, LanguageConfigs.CPP);
         // 获取返回得文件id
-        if (!sandBoxResponse.getStatus().equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
+        if (!compileResult.getStatus().equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
             // 返回编译错误
             submissionResult.setTotalTime(0L);
             submissionResult.setMemoryUsed(0L);
             submissionResult.setScore(0);
-            submissionResult.setCompileErrorMessage(sandBoxResponse.getError());
+            submissionResult.setCompileErrorMessage(compileResult.getError());
             submission.setTotalTime(0L);
             submissionResult.setScore(0);
             submission.setMemoryUsed(0L);
@@ -155,7 +160,7 @@ public class JudgeServiceImpl implements JudgeService {
             }
             return;
         }
-        Map<String, String> fileIds = sandBoxResponse.getFileIds();
+        Map<String, String> fileIds = compileResult.getFileIds();
         String exeId = fileIds.get("main");
         // 编译成功，修改状态为JUDGING
         this.changeStatus(submission, submissionResult, SubmissionStatusEnum.JUDGING);
@@ -194,16 +199,16 @@ public class JudgeServiceImpl implements JudgeService {
             System.out.println("🚛🚛🚛🚛🚛🚛🚛🚛input = " + input);
 
             // 运行第index个测试样例
-            SandBoxResponse runResponse = runCode(exeId, input, LanguageConfigs.CPP);
-            String status = runResponse.getStatus();
+            Result runResult = runCode(exeId, input, LanguageConfigs.CPP);
+            String status = runResult.getStatus();
 
             JudgeCaseResult judgeCaseResult = new JudgeCaseResult();
             judgeCaseResult.setIndex(index);
             judgeCaseResult.setInput(input);
             judgeCaseResult.setFullScore(testCase.getFullScore());
             // ns => ms
-            Long timeCost = runResponse.getRunTime() / 1000_000;
-            Long memoryUsed = runResponse.getMemory();
+            Long timeCost = runResult.getRunTime() / 1000_000;
+            Long memoryUsed = runResult.getMemory();
 
             totalTime += timeCost;
             maxMemoryUsed = Math.max(maxMemoryUsed, memoryUsed);
@@ -214,7 +219,7 @@ public class JudgeServiceImpl implements JudgeService {
             // 执行成功
             if (status.equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
                 // 获取输出文件.ans
-                String output = runResponse.getFiles().getStdout();
+                String output = runResult.getFiles().getStdout();
                 FileWriter fileWriter = new FileWriter(DATA_PATH + File.separator + pid + File.separator + index + ".ans");
                 fileWriter.write(output);
                 fileWriter.flush();
@@ -284,7 +289,8 @@ public class JudgeServiceImpl implements JudgeService {
 
         // 删除沙箱服务中保存的文件
         if (exeId != null) {
-            sandboxRun.delFile(exeId);
+//            sandboxRun.delFile(exeId);
+            sandboxFeignClient.deleteFile(exeId);
         }
 
         submissionResult.setScore(totalScore);
@@ -388,6 +394,7 @@ public class JudgeServiceImpl implements JudgeService {
 
 
 
+
     /**
      * 运行代码
      * 一次运行结束后不删除exe文件
@@ -395,7 +402,7 @@ public class JudgeServiceImpl implements JudgeService {
      * @param fileId
      * @return
      */
-    public SandBoxResponse runCode(String fileId, String input, LanguageConfig languageConfig) {
+    public Result runCode(String fileId, String input, LanguageConfig languageConfig) {
         Cmd cmd = new Cmd();
         // args
         List<String> args = languageConfig.getExeArgs();
@@ -433,18 +440,22 @@ public class JudgeServiceImpl implements JudgeService {
         List<Cmd> cmds = Arrays.asList(cmd);
         sandBoxRequest.setCmd(cmds);
 
-        SandBoxResponse response = sandboxRun.run(sandBoxRequest);
-        String status = response.getStatus();
+//        SandBoxResponse response = sandboxRun.run(sandBoxRequest);
+
+        // 使用open feign 请求沙箱
+        List<Result> resultList = sandboxFeignClient.run(sandBoxRequest);
+        Result result = resultList.get(0);
+        String status = result.getStatus();
         // 执行成功
         if (status.equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
             log.info("执行成功");
-            String stdout = response.getFiles().getStdout();
+            String stdout = result.getFiles().getStdout();
             log.info("代码输出 = " + stdout);
         } else {
             log.info("运行失败");
-            log.info(response.getError());
+            log.info(result.getError());
         }
-        return response;
+        return result;
     }
 
     /**
@@ -452,7 +463,7 @@ public class JudgeServiceImpl implements JudgeService {
      * @return
      */
     @Override
-    public SandBoxResponse compileCode(String sourceCode, LanguageConfig languageConfig) throws IOException {
+    public Result compileCode(String sourceCode, LanguageConfig languageConfig) throws IOException {
         Cmd cmd = new Cmd();
         // args
         List<String> args = languageConfig.getCmpArgs();
@@ -486,13 +497,15 @@ public class JudgeServiceImpl implements JudgeService {
         sandBoxRequest.setCmd(cmds);
 
         // 调用sandboxRun编译
-        SandBoxResponse response = sandboxRun.compile(sandBoxRequest);
-        log.info(response.toString());
-        if (response.getStatus().equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
-            return response;
+//        SandBoxResponse response = sandboxRun.compile(sandBoxRequest);
+        List<Result> resultList = sandboxFeignClient.run(sandBoxRequest);
+        Result result = resultList.get(0);
+        log.info(result.toString());
+        if (result.getStatus().equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
+            return result;
         }
-        log.info(response.getStatus());
-        log.info(response.getError());
-        return response;
+        log.info(result.getStatus());
+        log.info(result.getError());
+        return result;
     }
 }

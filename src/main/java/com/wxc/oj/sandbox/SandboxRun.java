@@ -3,6 +3,7 @@ package com.wxc.oj.sandbox;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.wxc.oj.openFeign.SandboxFeignClient;
 import com.wxc.oj.sandbox.dto.SandBoxRequest;
 import com.wxc.oj.sandbox.dto.SandBoxResponse;
 import jakarta.annotation.Resource;
@@ -34,8 +35,8 @@ public class SandboxRun {
     @Resource
     private RestTemplate restTemplate;
 
-    @Value("${base-url.sandbox}")
-    private String sandboxBaseUrl;
+//    @Value("${base-url.sandbox}")
+//    private String sandboxBaseUrl;
 
     // ❗❗❗ 云服务器里运行代码沙箱服务
     // private static final String SANDBOX_BASE_URL = "http://124.70.131.122:5050";
@@ -58,25 +59,27 @@ public class SandboxRun {
     }
 
 
+
     /**
      * 运行用户代码
      * 向代码沙箱的run接口发送请求
      * @return
      */
-    public SandBoxResponse run(SandBoxRequest request)  {
-        JSONObject param = JSONUtil.parseObj(request);
-        System.out.println(param);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request1 = new HttpEntity<>(JSONUtil.toJsonStr(param), headers);
-        ResponseEntity<String> postForEntity;
-        postForEntity = restTemplate.postForEntity(sandboxBaseUrl + RUN_URI, request1, String.class);
-
-        JSONArray jsonArray = JSONUtil.parseArray(postForEntity.getBody());
-        JSONObject jsonObject = (JSONObject)jsonArray.get(0);
-        SandBoxResponse response = JSONUtil.toBean(jsonObject, SandBoxResponse.class);
-        return response;
-    }
+//    public SandBoxResponse run(SandBoxRequest request)  {
+////        JSONObject param = JSONUtil.parseObj(request);
+////        System.out.println(param);
+////        HttpHeaders headers = new HttpHeaders();
+////        headers.setContentType(MediaType.APPLICATION_JSON);
+////        HttpEntity<String> request1 = new HttpEntity<>(JSONUtil.toJsonStr(param), headers);
+////        ResponseEntity<String> postForEntity;
+////        postForEntity = restTemplate.postForEntity(sandboxBaseUrl + RUN_URI, request1, String.class);
+//
+////        JSONArray jsonArray = JSONUtil.parseArray(postForEntity.getBody());
+////        JSONObject jsonObject = (JSONObject)jsonArray.get(0);
+////        sandboxFeignClient.run(request);
+////        SandBoxResponse response = JSONUtil.toBean(jsonObject, SandBoxResponse.class);
+//        return response;
+//    }
 
     /**
      * /file POST 上传一个文件到文件存储，
@@ -89,11 +92,11 @@ public class SandboxRun {
      *
      * @return
      */
-    public SandBoxResponse compile(SandBoxRequest request) throws IOException {
-        // run和compile都有调用run接口, 参数有所不同
-        SandBoxResponse compileResponse = run(request);
-        return compileResponse;
-    }
+//    public SandBoxResponse compile(SandBoxRequest request) throws IOException {
+//        // run和compile都有调用run接口, 参数有所不同
+//        SandBoxResponse compileResponse = run(request);
+//        return compileResponse;
+//    }
 
 
 
@@ -101,15 +104,15 @@ public class SandboxRun {
      * 删除代码沙箱中的文件
      * @param fileId 文件的id
      */
-    public void delFile(String fileId) {
-        try {
-            restTemplate.delete(sandboxBaseUrl + "/file/{0}", fileId);
-            log.info("文件删除成功: " + fileId);
-        } catch (RestClientResponseException ex) {
-            if (ex.getRawStatusCode() != 200) {
-                log.error("代码沙箱文件删除失败{}", ex.getResponseBodyAsString());
-            }
-        }
-    }
+//    public void delFile(String fileId) {
+//        try {
+//            restTemplate.delete(sandboxBaseUrl + "/file/{0}", fileId);
+//            log.info("文件删除成功: " + fileId);
+//        } catch (RestClientResponseException ex) {
+//            if (ex.getRawStatusCode() != 200) {
+//                log.error("代码沙箱文件删除失败{}", ex.getResponseBodyAsString());
+//            }
+//        }
+//    }
 
 }

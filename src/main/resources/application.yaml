@@ -66,8 +66,7 @@ server:
 
 
 
-base-url:
-    sandbox: http://124.70.131.122:5050
+
 api-key:
     imgbb: fb45ec0a10c46133498a09b082867203
 

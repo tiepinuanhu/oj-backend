@@ -52,13 +52,13 @@ public class Cmd {
 
     private boolean tty; // 开启 TTY
     // 资源限制
-    private double cpuLimit; // CPU时间限制，单位纳秒
-    private double clockLimit; // 等待时间限制，单位纳秒 ❗❗❗
-    private double memoryLimit; // 内存限制，单位 byte ❗❗❗
-    private double stackLimit; // 栈内存限制，单位 byte
-    private double procLimit; // 线程数量限制
-    private double cpuRateLimit; // CPU 使用率限制，1000 等于单核 100%
-    private double cpuSetLimit; // 限制 CPU 使用
+    private long cpuLimit; // CPU时间限制，单位纳秒
+    private long clockLimit; // 等待时间限制，单位纳秒 ❗❗❗
+    private long memoryLimit; // 内存限制，单位 byte ❗❗❗
+    private long stackLimit; // 栈内存限制，单位 byte
+    private long procLimit; // 线程数量限制
+    private long cpuRateLimit; // CPU 使用率限制，1000 等于单核 100%
+    private String cpuSetLimit; // 限制 CPU 使用
     private boolean strictMemoryLimit; // 使用 dataSegmentLimit
     private boolean dataSegmentLimit; // 开启 limit 堆空间限制
     private boolean addressSpaceLimit; // 开启 limit 虚拟内存空间限制
@@ -69,5 +69,5 @@ public class Cmd {
     // 在执行程序后从容器文件系统中复制出来的文件列表
     private List<String> copyOut;
     private List<String> copyOutCached;
-    private double copyOutMax; // 指定 copyOut 复制文件大小限制，单位 byte
+    private long copyOutMax; // 指定 copyOut 复制文件大小限制，单位 byte
 }
