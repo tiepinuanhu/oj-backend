@@ -27,7 +27,7 @@ public class JwtUtils {
     // 以下2个值, 会读取application.yaml中配置的属性
     private static long tokenExpiration = 86400000; //有效时间,单位毫秒 1000毫秒 == 1秒
 
-    private static String tokenSignKey = "onlinejudge";  //当前程序签名秘钥
+    private static String tokenSignKey = "online judge";  //当前程序签名秘钥
 
     //定义token返回头部
     public static final String AUTH_HEADER_KEY = "Authorization";

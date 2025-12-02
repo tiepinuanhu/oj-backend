@@ -363,7 +363,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
 
         }
 
-        stringRedisTemplate.delete(PROBLEM_KEY + problem.getId());
+        stringRedisTemplate.delete(RedisConstant.PROBLEM_KEY + problem.getId());
         ProblemVO problemVOWithContent = this.getProblemVOWithContent(problem);
         return problemVOWithContent;
     }

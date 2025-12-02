@@ -7,6 +7,7 @@ import com.wxc.oj.sandbox.dto.SandBoxRequest;
 import com.wxc.oj.sandbox.dto.SandBoxResponse;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,10 +34,11 @@ public class SandboxRun {
     @Resource
     private RestTemplate restTemplate;
 
-
+    @Value("${base-url.sandbox}")
+    private String sandboxBaseUrl;
 
     // ❗❗❗ 云服务器里运行代码沙箱服务
-    private static final String SANDBOX_BASE_URL = "http://124.70.131.122:5050";
+    // private static final String SANDBOX_BASE_URL = "http://124.70.131.122:5050";
     private static final String RUN_URI = "/run";
 
     public static final HashMap<String, Integer> RESULT_MAP_STATUS = new HashMap<>();
@@ -68,7 +70,7 @@ public class SandboxRun {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request1 = new HttpEntity<>(JSONUtil.toJsonStr(param), headers);
         ResponseEntity<String> postForEntity;
-        postForEntity = restTemplate.postForEntity(SANDBOX_BASE_URL + RUN_URI, request1, String.class);
+        postForEntity = restTemplate.postForEntity(sandboxBaseUrl + RUN_URI, request1, String.class);
 
         JSONArray jsonArray = JSONUtil.parseArray(postForEntity.getBody());
         JSONObject jsonObject = (JSONObject)jsonArray.get(0);
@@ -101,7 +103,7 @@ public class SandboxRun {
      */
     public void delFile(String fileId) {
         try {
-            restTemplate.delete(SANDBOX_BASE_URL + "/file/{0}", fileId);
+            restTemplate.delete(sandboxBaseUrl + "/file/{0}", fileId);
             log.info("文件删除成功: " + fileId);
         } catch (RestClientResponseException ex) {
             if (ex.getRawStatusCode() != 200) {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxc.oj.common.BaseResponse;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.common.ResultUtils;
+import com.wxc.oj.constant.RedisConstant;
 import com.wxc.oj.model.po.User;
 import com.wxc.oj.utils.JwtUtils;
 import jakarta.annotation.Resource;
@@ -66,7 +67,7 @@ public class LoginProtectInterceptor implements HandlerInterceptor {
         boolean valid = jwtUtils.isTokenValid(token);
         if (valid) {
             Long userId = JwtUtils.getUserIdFromToken(token);
-            String s = stringRedisTemplate.opsForValue().get("user:" + userId);
+            String s = stringRedisTemplate.opsForValue().get(RedisConstant.USER_KEY + userId);
             User user = JSONUtil.toBean(s, User.class);
             if (s != null && user != null) {
                 return true;

@@ -1,6 +1,7 @@
 package com.wxc.oj.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -10,6 +11,7 @@ import com.wxc.oj.constant.CommonConstant;
 import com.wxc.oj.constant.RedisConstant;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.mapper.UserMapper;
+import com.wxc.oj.model.dto.user.ImgbbResponse;
 import com.wxc.oj.model.dto.user.UserQueryRequest;
 import com.wxc.oj.enums.UserRoleEnum;
 import com.wxc.oj.model.po.User;
@@ -21,13 +23,19 @@ import com.wxc.oj.utils.SqlUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -121,20 +129,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
+
         // 使用userID生成载荷
         String userJsonStr = JSONUtil.toJsonStr(user);
         // 用户登陆成功后, 将用户信息保存到redis中, 用户id作为key, 用户json字符串作为value
-        stringRedisTemplate.opsForValue().set(RedisConstant.USER_KEY + user.getId(),
-                userJsonStr, 7, TimeUnit.DAYS);
+
         UserVO userVO = new UserVO();
         copyProperties(user, userVO);
-//        String token = JwtUtils.createToken(userVO);
         String token = JwtUtils.createToken(userVO.getId());
         LoginVO loginVO = new LoginVO();
         loginVO.setToken(token);
         loginVO.setUserVO(userVO);
+        String jsonStr = JSONUtil.toJsonStr(userVO);
+        // 将userVO，保存到Redis
+        stringRedisTemplate.opsForValue().set(RedisConstant.USER_KEY + user.getId(),
+                jsonStr, 7, TimeUnit.DAYS);
         return loginVO;
     }
+
+
+
+    @Value("${base-url.imgbb}")
+    private String imgbbBaseUrl;
+
 
 
     /**

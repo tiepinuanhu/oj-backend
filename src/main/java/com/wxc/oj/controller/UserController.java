@@ -1,5 +1,7 @@
 package com.wxc.oj.controller;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wxc.oj.annotation.AuthCheck;
 import com.wxc.oj.common.BaseResponse;
@@ -19,8 +21,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -83,6 +92,20 @@ public class UserController {
         return ResultUtils.success(loginVO.getUserVO());
     }
 
+//    private static final String IMGBB_BASE_URL = "http://124.70.131.122:5050";
+
+
+
+
+    @Resource
+    private RestTemplate restTemplate;
+    @PostMapping("/avatar/upload")
+    public BaseResponse<String> uploadAvatar(
+            MultipartFile file,
+            HttpServletRequest request) {
+        ImgbbResponse imgbbResponse = userService.uploadAvatar(file, request);
+        return ResultUtils.success(imgbbResponse.getData().getUrl());
+    }
 
     /**
      * 用户登出
