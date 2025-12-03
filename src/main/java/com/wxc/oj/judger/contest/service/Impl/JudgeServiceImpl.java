@@ -20,7 +20,6 @@ import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.model.queueMessage.SubmissionMessage;
 import com.wxc.oj.openFeign.SandboxFeignClient;
-import com.wxc.oj.sandbox.SandboxRun;
 import com.wxc.oj.model.dto.sandbox.Cmd;
 import com.wxc.oj.model.dto.sandbox.Result;
 import com.wxc.oj.model.dto.sandbox.SandBoxRequest;
@@ -58,10 +57,6 @@ public class JudgeServiceImpl implements JudgeService {
 
     @Resource
     private SandboxFeignClient sandboxFeignClient;
-
-
-    @Resource
-    private SandboxRun sandboxRun;
 
 
     @Resource

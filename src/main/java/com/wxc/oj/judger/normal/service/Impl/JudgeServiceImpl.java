@@ -53,14 +53,10 @@ import java.util.Map;
 @Slf4j(topic = "✔✔✔✔JudgeServiceImpl✔✔✔✔")
 public class JudgeServiceImpl implements JudgeService {
 
-    /**
-     * 用于访问resources/data/xxx/
-     */
+
     @Resource
     private SandboxFeignClient sandboxFeignClient;
 
-//    @Resource
-//    private SandboxRun sandboxRun;
 
 
     @Resource
@@ -69,14 +65,15 @@ public class JudgeServiceImpl implements JudgeService {
     @Resource
     private ProblemService problemService;
 
+    @Resource
+    private RabbitTemplate rabbitTemplate;
 
 
 
     private static final String EXCHANGE = "problem_exchange";
+
     private static final String ROUTING_KEY = "problem_key";
 
-    @Resource
-    private RabbitTemplate rabbitTemplate;
 
     /**
      * 每个样例时间限制1s
@@ -89,7 +86,8 @@ public class JudgeServiceImpl implements JudgeService {
     public static final Long MEMORY_LIMIT = 536870912L;
 
     public static final String QUEUE = "submission";
-    public static final String DATA_PATH = "C:\\Users\\WangXinchao\\Desktop\\oj-backend\\src\\main\\resources\\data";
+    public static final String DATA_PATH = System.getProperty("user.home") + "/oj-data";
+//    public static final String DATA_PATH = "C:\\Users\\WangXinchao\\Desktop\\oj-backend\\src\\main\\resources\\data";
     public static final Integer PROC_LIMIT = 50;
 
 
