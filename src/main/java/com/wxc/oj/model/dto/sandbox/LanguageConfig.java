@@ -1,4 +1,4 @@
-package com.wxc.oj.sandbox.model;
+package com.wxc.oj.model.dto.sandbox;
 
 import lombok.Builder;
 import lombok.Data;

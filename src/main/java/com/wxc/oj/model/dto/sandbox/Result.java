@@ -1,6 +1,5 @@
-package com.wxc.oj.sandbox.dto;
+package com.wxc.oj.model.dto.sandbox;
 
-import com.wxc.oj.sandbox.model.FileError;
 import lombok.Data;
 
 import java.util.List;

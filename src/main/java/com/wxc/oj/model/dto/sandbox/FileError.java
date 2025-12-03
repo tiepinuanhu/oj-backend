@@ -1,6 +1,6 @@
-package com.wxc.oj.sandbox.model;
+package com.wxc.oj.model.dto.sandbox;
 
-import com.wxc.oj.sandbox.enums.FileErrorType;
+import com.wxc.oj.enums.sandbox.FileErrorType;
 import lombok.Data;
 
 /**

@@ -1,4 +1,4 @@
-package com.wxc.oj.sandbox.enums;
+package com.wxc.oj.enums.sandbox;
 
 /**
  * enum FileErrorType {

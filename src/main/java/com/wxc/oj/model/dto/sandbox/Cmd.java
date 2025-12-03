@@ -1,6 +1,5 @@
-package com.wxc.oj.sandbox.dto;
+package com.wxc.oj.model.dto.sandbox;
 
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import lombok.Data;

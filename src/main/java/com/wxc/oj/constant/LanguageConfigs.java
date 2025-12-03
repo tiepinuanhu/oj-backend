@@ -1,6 +1,6 @@
 package com.wxc.oj.constant;
 
-import com.wxc.oj.sandbox.model.LanguageConfig;
+import com.wxc.oj.model.dto.sandbox.LanguageConfig;
 
 import java.util.Arrays;
 

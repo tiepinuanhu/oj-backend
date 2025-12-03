@@ -1,7 +1,7 @@
 /**
   * Copyright 2024 bejson.com 
   */
-package com.wxc.oj.sandbox.dto;
+package com.wxc.oj.model.dto.sandbox;
 
 import lombok.Data;
 

@@ -2,6 +2,7 @@ package com.wxc.oj.service.impl;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxc.oj.common.ErrorCode;
@@ -154,15 +155,21 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
         }
         Long problemId = submission.getProblemId();
         Problem problem = problemService.getById(problemId);
-        if (problem == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        problem.setSubmittedNum(problem.getSubmittedNum() + 1);
+        LambdaUpdateWrapper<Problem> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Problem::getId, problemId)
+                .set(Problem::getSubmittedNum, problem.getSubmittedNum() + 1);
+        problemService.update(updateWrapper);
+//        if (problem == null) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
+//        problem.setSubmittedNum(problem.getSubmittedNum() + 1);
         if (score == 100) {
-            problem.setAcceptedNum(problem.getAcceptedNum() + 1);
+//            problem.setAcceptedNum(problem.getAcceptedNum() + 1);
+            updateWrapper.set(Problem::getAcceptedNum, problem.getAcceptedNum() + 1);
+            problemService.update(updateWrapper);
         }
         stringRedisTemplate.delete(PROBLEM_KEY + problem.getId());
-        problemService.updateById(problem);
+//        problemService.updateById(problem);
     }
 
 
