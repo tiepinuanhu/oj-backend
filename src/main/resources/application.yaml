@@ -70,3 +70,34 @@ server:
 api-key:
     imgbb: fb45ec0a10c46133498a09b082867203
 
+
+remote:
+    address: 101.37.161.146
+# oj配置
+oj:
+    data:
+        path: E:\oj-data # 动态路径
+    judge:
+        cpu-limit: 1000000000 # 1s
+        compile-cpu-limit: 3000000000 # 3s
+        memory-limit: 536870912 # 512MB
+        proc-limit: 50
+    language:
+        cpp:
+            source-file-name: main.cpp
+            exe-file-name: main
+            cmp-args: ["g++", "main.cpp", "-o", "main"]
+            exe-args: ["./main"]
+            envs: []
+        java:
+            source-file-name: Main.java
+            exe-file-name: Main.class
+            cmp-args: ["javac", "Main.java"]
+            exe-args: ["java", "Main"]
+            envs: []
+        python:
+            source-file-name: main.py
+            exe-file-name: main.py
+            cmp-args: [] # 无编译步骤
+            exe-args: ["python3", "main.py"]
+            envs: []

@@ -2,6 +2,7 @@ package com.wxc.oj.openFeign;
 
 import com.wxc.oj.model.dto.sandbox.Result;
 import com.wxc.oj.model.dto.sandbox.SandBoxRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 @FeignClient(
 		value = "sandbox-feign",
-		url = "http://124.70.131.122:5050"
+		url = "http://${remote.address}:5050"
 )
 public interface SandboxFeignClient {
 

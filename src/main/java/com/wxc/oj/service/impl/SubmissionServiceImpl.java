@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxc.oj.common.ErrorCode;
+import com.wxc.oj.constant.RabbitConstant;
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
 import com.wxc.oj.exception.BusinessException;
@@ -61,13 +62,13 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
     @Resource
     StringRedisTemplate stringRedisTemplate;
 
-    public static final String ROUTING_KEY = "submission";
+//    public static final String ROUTING_KEY = "submission";
 
     private static final String PROBLEM_KEY = "problem:";
     /**
      * 默认的直连交换机
      */
-    public static final String EXCHANGE = "amq.direct";
+//    public static final String EXCHANGE = "amq.direct";
 
     public static final String PROBLEM_QUEUE = "problem_queue";
 
@@ -235,7 +236,8 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
         if (id != null) {
             SubmissionMessage submissionMessage = new SubmissionMessage();
             submissionMessage.setId(id);
-            rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY, submissionMessage);
+            rabbitTemplate.convertAndSend(RabbitConstant.SUBMISSION_EXCHANGE, RabbitConstant.SUBMISSION_ROUTING_KEY,
+                    submissionMessage);
             submissionResult.setStatus(SubmissionStatusEnum.PENDING.getStatus());
             submissionResult.setStatusDescription(SubmissionStatusEnum.PENDING.getDescription());
         }

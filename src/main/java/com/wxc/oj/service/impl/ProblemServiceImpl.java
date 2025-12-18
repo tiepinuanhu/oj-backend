@@ -67,7 +67,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
     @Override
     public ProblemVO getProblemVOById(Long problemId) {
         if (problemId <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "非法题目id");
         }
         if (stringRedisTemplate.hasKey(RedisConstant.PROBLEM_KEY + problemId)) {
             String s = stringRedisTemplate.opsForValue().get(RedisConstant.PROBLEM_KEY + problemId);
@@ -75,11 +75,11 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
             return problemVO;
         }
         Problem problem = this.getById(problemId);
+        if (problem == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "题目不存在");
+        }
         ProblemVO problemVOWithContent = this.getProblemVOWithContent(problem);
         stringRedisTemplate.opsForValue().set(RedisConstant.PROBLEM_KEY + problemId, JSONUtil.toJsonStr(problemVOWithContent));
-        if (problem == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
-        }
         return problemVOWithContent;
     }
 

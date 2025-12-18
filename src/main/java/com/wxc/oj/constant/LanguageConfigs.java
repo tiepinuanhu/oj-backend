@@ -22,7 +22,7 @@ public interface LanguageConfigs {
             .sourceFileName("Main.java")
             .build();
     LanguageConfig PYTHON = LanguageConfig.builder()
-            .exeArgs(Arrays.asList("python3", "main.py"))
+            .exeArgs(Arrays.asList("python", "main.py"))
             .envs(Arrays.asList("PATH=/usr/bin:/bin"))
             .exeFileName("main.py")
             .sourceFileName("main.py")

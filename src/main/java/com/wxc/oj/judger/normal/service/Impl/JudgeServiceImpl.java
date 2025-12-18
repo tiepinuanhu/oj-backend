@@ -6,6 +6,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.constant.LanguageConfigs;
+import com.wxc.oj.constant.RabbitConstant;
 import com.wxc.oj.enums.JudgeResultEnum;
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
@@ -32,6 +33,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -49,7 +51,7 @@ import java.util.Map;
  *   "language": "cpp"
  * }
  */
-@Service
+//@Service
 @Slf4j(topic = "✔✔✔✔JudgeServiceImpl✔✔✔✔")
 public class JudgeServiceImpl implements JudgeService {
 
@@ -85,13 +87,14 @@ public class JudgeServiceImpl implements JudgeService {
      */
     public static final Long MEMORY_LIMIT = 536870912L;
 
-    public static final String QUEUE = "submission";
-    public static final String DATA_PATH = System.getProperty("user.home") + "/oj-data";
-//    public static final String DATA_PATH = "C:\\Users\\WangXinchao\\Desktop\\oj-backend\\src\\main\\resources\\data";
+//    public static final String QUEUE = "submission";
+//    public static final String DATA_PATH = System.getProperty("user.home") + "/oj-data";
+    public static final String DATA_PATH = "C:\\Users\\WangXinchao\\Desktop\\oj-backend\\src\\main\\resources\\data";
     public static final Integer PROC_LIMIT = 50;
+    @Value("${oj.data.path}")
+    protected String dataPath;
 
-
-    @RabbitListener(queues = QUEUE, messageConverter = "jacksonConverter", concurrency = "20")
+    @RabbitListener(queues = RabbitConstant.SUBMISSION_QUEUE, messageConverter = "jacksonConverter")
     public void listenSubmission(SubmissionMessage message) throws IOException {
         Long id = message.getId();
         log.info("🔆🔆🔆🔆🔆接收到的id: " + id);
@@ -588,7 +591,7 @@ public class JudgeServiceImpl implements JudgeService {
 
         // 计算得分
         int totalScore = 0;
-        String fileId = "main.py";
+//        String fileId = "main.py";
         for (TestCase testCase : testCaseList) {
             // 获取第index个测试样例的输入文件, 并转化为字符串
             int index = testCase.getIndex();
@@ -693,10 +696,10 @@ public class JudgeServiceImpl implements JudgeService {
         // 根据AC样例数与总样例数, 计算分数
 
         // 删除沙箱服务中保存的文件
-        if (fileId != null) {
-//            sandboxRun.delFile(fileId);
-            sandboxFeignClient.deleteFile(fileId);
-        }
+//        if (fileId != null) {
+////            sandboxRun.delFile(fileId);
+//            sandboxFeignClient.deleteFile(fileId);
+//        }
 
         submissionResult.setScore(totalScore);
         // 提交结果中包含所有测试样例的测试结果
@@ -742,7 +745,8 @@ public class JudgeServiceImpl implements JudgeService {
         cmd.setProcLimit(PROC_LIMIT);
         // copyIn
         JSONObject copyIn = new JSONObject();
-        copyIn.set(languageConfig.getExeFileName(),new JSONObject().set("content", sourceCode));
+        // python不需要编译，所以直接拷贝python文件
+        copyIn.set(languageConfig.getExeFileName(), new JSONObject().set("content", sourceCode));
         cmd.setCopyIn(copyIn);
 
         SandBoxRequest sandBoxRequest = new SandBoxRequest();
@@ -750,7 +754,6 @@ public class JudgeServiceImpl implements JudgeService {
         List<Cmd> cmds = Arrays.asList(cmd);
         sandBoxRequest.setCmd(cmds);
 
-//        SandBoxResponse response = sandboxRun.run(sandBoxRequest);
         List<Result> results = sandboxFeignClient.run(sandBoxRequest);
         Result result = results.get(0);
         String status = result.getStatus();

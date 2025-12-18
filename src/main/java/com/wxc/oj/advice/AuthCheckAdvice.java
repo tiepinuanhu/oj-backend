@@ -55,7 +55,7 @@ public class AuthCheckAdvice {
             // 必须有管理员权限
             if (UserRoleEnum.ADMIN.getValue() == mustRole) {
                 if (mustRole != userRole) {
-                    log.info("oh no");
+                    log.info("用户权限不足");
                     throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
                 }
             }
