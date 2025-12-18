@@ -99,5 +99,5 @@ oj:
             source-file-name: main.py
             exe-file-name: main.py
             cmp-args: [] # 无编译步骤
-            exe-args: ["python3", "main.py"]
+            exe-args: ["python", "main.py"]
             envs: []

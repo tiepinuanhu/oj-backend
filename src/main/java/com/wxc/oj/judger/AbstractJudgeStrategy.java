@@ -387,12 +387,29 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
         // copyIn
         JSONObject copyIn = new JSONObject();
         // 编译型语言传入编译过后的文件ID，解释型语言传入源码
+        /**
+         * 编译型语言，C++，Java
+         * 运行时，传入编译好的文件，指定文件名称：main，指定文件id：fileId
+         * "copyIn": {
+         *      "main": {
+         *          "fileId": "5LWIZAA45JHX4Y4Z" // 这个缓存文件的 ID 来自上一个请求返回的 fileIds
+         *      }
+         *  }
+         * 解释性语言：python
+         * copyIn下面传入文件名称和文件源码，使用的是MemoryFile
+         *  "copyIn": {
+         *      "main.py": {
+         *           "content": "s = input().split()\nprint(int(s[0]) + int(s[1]))"
+         *      }
+         *   }
+         */
         if (needCompile() && exeFileId != null) {
             copyIn.set(languageConfig.getExeFileName(), new JSONObject().set("fileId", exeFileId));
         } else {
             copyIn.set(languageConfig.getExeFileName(), new JSONObject().set("content", sourceCode));
         }
         cmd.setCopyIn(copyIn);
+
 
         SandBoxRequest sandBoxRequest = new SandBoxRequest();
         List<Cmd> cmds = Arrays.asList(cmd);
