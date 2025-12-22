@@ -67,7 +67,7 @@ public class LoginProtectInterceptor implements HandlerInterceptor {
         boolean valid = jwtUtils.isTokenValid(token);
         if (valid) {
             Long userId = JwtUtils.getUserIdFromToken(token);
-            String s = stringRedisTemplate.opsForValue().get(RedisConstant.USER_KEY + userId);
+            String s = stringRedisTemplate.opsForValue().get(RedisConstant.CACHE_USER_KEY + userId);
             User user = JSONUtil.toBean(s, User.class);
             if (s != null && user != null) {
                 return true;

@@ -69,8 +69,8 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
         if (problemId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "非法题目id");
         }
-        if (stringRedisTemplate.hasKey(RedisConstant.PROBLEM_KEY + problemId)) {
-            String s = stringRedisTemplate.opsForValue().get(RedisConstant.PROBLEM_KEY + problemId);
+        if (stringRedisTemplate.hasKey(RedisConstant.CACHE_PROBLEM_KEY + problemId)) {
+            String s = stringRedisTemplate.opsForValue().get(RedisConstant.CACHE_PROBLEM_KEY + problemId);
             ProblemVO problemVO = JSONUtil.toBean(s, ProblemVO.class);
             return problemVO;
         }
@@ -79,7 +79,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "题目不存在");
         }
         ProblemVO problemVOWithContent = this.getProblemVOWithContent(problem);
-        stringRedisTemplate.opsForValue().set(RedisConstant.PROBLEM_KEY + problemId, JSONUtil.toJsonStr(problemVOWithContent));
+        stringRedisTemplate.opsForValue().set(RedisConstant.CACHE_PROBLEM_KEY + problemId, JSONUtil.toJsonStr(problemVOWithContent));
         return problemVOWithContent;
     }
 
@@ -363,7 +363,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
 
         }
 
-        stringRedisTemplate.delete(RedisConstant.PROBLEM_KEY + problem.getId());
+        stringRedisTemplate.delete(RedisConstant.CACHE_PROBLEM_KEY + problem.getId());
         ProblemVO problemVOWithContent = this.getProblemVOWithContent(problem);
         return problemVOWithContent;
     }

@@ -92,18 +92,18 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Exchange problem_exchange(){
-        return ExchangeBuilder.directExchange("problem_exchange").build();
+    public Exchange submission_status_exchange(){
+        return ExchangeBuilder.directExchange("submission_status_exchange").build();
     }
 
     /**
      * 创建消息队列，用于存储submissionID。
      * @return
      */
-    @Bean("problem_queue")     //定义消息队列
+    @Bean("submission_status_queue")     //定义消息队列
     public Queue problem_queue(){
         return QueueBuilder
-                .durable("problem_queue")   //非持久化类型
+                .durable("submission_status_queue")   //非持久化类型
                 .build();
     }
 
@@ -114,13 +114,13 @@ public class RabbitConfig {
      * @return
      */
     @Bean
-    public Binding binding_problem(@Qualifier("problem_exchange") Exchange exchange,
-                                   @Qualifier("problem_queue") Queue queue) {
+    public Binding binding_problem(@Qualifier("submission_status_exchange") Exchange exchange,
+                                   @Qualifier("submission_status_queue") Queue queue) {
         //将我们刚刚定义的交换机和队列进行绑定
         return BindingBuilder
                 .bind(queue)   //绑定队列
                 .to(exchange)  //到交换机
-                .with("problem_key")   //使用自定义的routingKey
+                .with("submission_status_key")   //使用自定义的routingKey
                 .noargs();
     }
 

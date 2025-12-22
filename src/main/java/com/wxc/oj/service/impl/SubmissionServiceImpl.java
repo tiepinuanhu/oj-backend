@@ -1,5 +1,6 @@
 package com.wxc.oj.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -7,11 +8,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.constant.RabbitConstant;
+import com.wxc.oj.constant.RedisConstant;
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.mapper.SubmissionMapper;
 import com.wxc.oj.model.queueMessage.ProblemMessage;
+import com.wxc.oj.model.queueMessage.SubmissionStatusMessage;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.model.queueMessage.SubmissionMessage;
 import com.wxc.oj.model.dto.submission.SubmissionAddRequest;
@@ -27,12 +30,16 @@ import com.wxc.oj.model.vo.problem.SubmissionVO;
 import com.wxc.oj.model.vo.UserVO;
 import com.wxc.oj.service.ProblemService;
 import com.wxc.oj.service.UserService;
+import com.wxc.oj.utils.DateUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -61,16 +68,20 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
 //    public static final String ROUTING_KEY = "submission";
 
-    private static final String PROBLEM_KEY = "problem:";
+//    private static final String PROBLEM_KEY = "problem:";
     /**
      * 默认的直连交换机
      */
 //    public static final String EXCHANGE = "amq.direct";
 
-    public static final String PROBLEM_QUEUE = "problem_queue";
+//    public static final String PROBLEM_QUEUE = "problem_queue";
 
     @Override
     public ProblemStatisticsVO getProblemStatisticsVO(Long problemId) {
@@ -138,13 +149,16 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
 
 
     /**
-     * 根据提交结果修改题目的统计信息
-     * @param problemMessage
+     * 根据提交结果修改的统计信息
+     * 统计信息包括：题目的提交数和通过数，用户通过的题目和AC的数量
+     * 会有并发问题吧：
      */
-    @RabbitListener(queues = PROBLEM_QUEUE, messageConverter = "jacksonConverter")
-    public void changeProblem(ProblemMessage problemMessage) {
-        Long sid = problemMessage.getSid();
-        Submission submission = this.getById(sid);
+    @RabbitListener(queues = RabbitConstant.SUBMISSION_STATUS_QUEUE, messageConverter = "jacksonConverter")
+    public void changeProblem(SubmissionStatusMessage submissionStatusMessage) {
+        Long problemId = submissionStatusMessage.getProblemId();
+        Long submissionId = submissionStatusMessage.getSubmissionId();
+        Long userId = submissionStatusMessage.getUserId();
+        Submission submission = this.getById(submissionId);
         SubmissionVO submissionVO = this.submissionToVO(submission);
         SubmissionResult submissionResult = submissionVO.getSubmissionResult();
         if (submissionResult == null) {
@@ -154,23 +168,27 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
         if (score == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        Long problemId = submission.getProblemId();
+
+        // 更新题目信息
         Problem problem = problemService.getById(problemId);
         LambdaUpdateWrapper<Problem> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(Problem::getId, problemId)
-                .set(Problem::getSubmittedNum, problem.getSubmittedNum() + 1);
-        problemService.update(updateWrapper);
-//        if (problem == null) {
-//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-//        }
-//        problem.setSubmittedNum(problem.getSubmittedNum() + 1);
         if (score == 100) {
-//            problem.setAcceptedNum(problem.getAcceptedNum() + 1);
-            updateWrapper.set(Problem::getAcceptedNum, problem.getAcceptedNum() + 1);
-            problemService.update(updateWrapper);
+            // 这块可能有并发问题, 如果大量用户对同一个题目提交，都是正确答案
+            // score都是100，最终增加的AC数量可能会有误
+            updateWrapper.set(Problem::getAcceptedNum, problem.getAcceptedNum() + 1)
+                        .set(Problem::getSubmittedNum, problem.getSubmittedNum() + 1);
+            // todo: 添加用户AC题目数
+            String currentDateStr = DateUtils.getCurrentDateStr();
+            // 添加用户AC题目id，使用Set
+            redisTemplate.opsForSet().add(RedisConstant.AC_PROBLEMS_KEY + currentDateStr +":"+ userId, problemId);
+            stringRedisTemplate.opsForZSet().incrementScore(RedisConstant.AC_RANK + currentDateStr,
+                    String.valueOf(userId), 1);
+        } else {
+            updateWrapper.eq(Problem::getId, problemId)
+                    .set(Problem::getSubmittedNum, problem.getSubmittedNum() + 1);
         }
-        stringRedisTemplate.delete(PROBLEM_KEY + problem.getId());
-//        problemService.updateById(problem);
+        problemService.update(updateWrapper);
+        stringRedisTemplate.delete(RedisConstant.CACHE_PROBLEM_KEY + problem.getId());
     }
 
 

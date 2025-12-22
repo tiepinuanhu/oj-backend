@@ -39,27 +39,27 @@ public class AuthCheckAdvice {
     @Around("@annotation(authCheck)")
     public Object doInterceptor(ProceedingJoinPoint joinPoint, AuthCheck authCheck) throws Throwable {
         // 通过注解获取需要的权限
-        Integer mustRole = authCheck.mustRole().getValue();
-        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-        // 获取当前请求
-        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-        // 当前登录用户
-        User loginUser = userService.getLoginUser(request);
-        // 必须有该权限才通过
-        if (mustRole != null) {
-            Integer userRole = loginUser.getUserRole();
-            // 如果被封号，直接拒绝
-            if (UserRoleEnum.BAN.getValue() == mustRole) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-            }
-            // 必须有管理员权限
-            if (UserRoleEnum.ADMIN.getValue() == mustRole) {
-                if (mustRole != userRole) {
-                    log.info("用户权限不足");
-                    throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-                }
-            }
-        }
+//        Integer mustRole = authCheck.mustRole().getValue();
+//        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+//        // 获取当前请求
+//        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+//        // 当前登录用户
+//        User loginUser = userService.getLoginUser(request);
+//        // 必须有该权限才通过
+//        if (mustRole != null) {
+//            Integer userRole = loginUser.getUserRole();
+//            // 如果被封号，直接拒绝
+//            if (UserRoleEnum.BAN.getValue() == mustRole) {
+//                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+//            }
+//            // 必须有管理员权限
+//            if (UserRoleEnum.ADMIN.getValue() == mustRole) {
+//                if (mustRole != userRole) {
+//                    log.info("用户权限不足");
+//                    throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+//                }
+//            }
+//        }
         // 通过权限校验，放行
         return joinPoint.proceed();
     }

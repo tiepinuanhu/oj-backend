@@ -1,12 +1,16 @@
+remote:
+    address: 47.110.79.29
+
+
 spring:
     rabbitmq:
-        addresses: 124.70.131.122
+        addresses: 47.110.79.29
         username: admin
         password: wxc123...
         virtual-host: /
     data:
         redis:
-            host: 124.70.131.122
+            host: 47.110.79.29
             port: 6379
             password: wxc123...
     jackson:
@@ -23,7 +27,7 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
         # Druid的其他属性配置 springboot3整合情况下,数据库连接信息必须在Druid属性下!
         druid:
-            url: jdbc:mysql://124.70.131.122:3306/db_oj
+            url: jdbc:mysql://47.110.79.29:3306/db_oj
             username: root
             password: wxc123...
             driver-class-name: com.mysql.cj.jdbc.Driver
@@ -71,8 +75,7 @@ api-key:
     imgbb: fb45ec0a10c46133498a09b082867203
 
 
-remote:
-    address: 101.37.161.146
+
 # oj配置
 oj:
     data:

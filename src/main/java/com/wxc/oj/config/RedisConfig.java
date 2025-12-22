@@ -56,7 +56,7 @@ public class RedisConfig {
      */
     public RedissonClient redissonClient() {
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://124.70.131.122:6379")
+        config.useSingleServer().setAddress("redis://47.110.79.29:6379")
                 .setPassword("wxc123...");
         return Redisson.create(config);
     }

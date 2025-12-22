@@ -21,6 +21,7 @@ import com.wxc.oj.model.judge.JudgeConfig;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Submission;
 import com.wxc.oj.model.queueMessage.ProblemMessage;
+import com.wxc.oj.model.queueMessage.SubmissionStatusMessage;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.openFeign.SandboxFeignClient;
 import com.wxc.oj.service.ProblemService;
@@ -115,19 +116,15 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
             // E:/data/1/submission/1/1.ans
             String ansFilePath = dataPath + File.separator + "submission"
                     + File.separator + submissionId + File.separator + caseIndex + ".ans";
-//            FileWriter fileWriter = new FileWriter(dataPath + File.separator + "submission"
-//                     + File.separator + submissionId + File.separator + caseIndex + ".ans");
             try (FileWriter fileWriter = new FileWriter(ansFilePath)) {
                 fileWriter.write(output);
                 fileWriter.flush();
                 log.info("写入临时文件成功: {}", ansFilePath);
-
             } catch (IOException e) {
                 log.error("写入临时文件失败: {}", ansFilePath, e);
                 throw e;
             }
-//            fileWriter.write(output);
-//            fileWriter.flush();
+
             judgeCaseResult.setOutput(output);
             // 比较.ans和.out文件
             boolean accepted = checker(problemId, submissionId, caseIndex);
@@ -206,8 +203,6 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
                 checkCompileError(submission, submissionResult, compileResult);
                 Map<String, String> fileIds = compileResult.getFileIds();
                 executableFileId = fileIds.get(getExecutableFileName());
-            } else {
-//                executableFileId = getExecutableFileName();
             }
 
             // 读取判题配置
@@ -246,7 +241,6 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
             // 提交结果中包含所有测试样例的测试结果
             submissionResult.setJudgeCaseResults(judgeCaseResults);
             // 判题结束后, 修改数据库中的submission的信息
-            submission.setId(submissionId);
             if (totalScore == 100) {
                 this.changeStatus(submission, submissionResult, SubmissionStatusEnum.ACCEPTED);
             } else {
@@ -281,8 +275,17 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
 //            changeStatus(submission, submissionResult, judgeCaseResults);
 //
 //            // 9. 发送消息更新题目统计数据
-            sendProblemStatMessage(submissionId);
+//            sendProblemStatMessage(submissionId);
 
+            ProblemMessage problemMessage = new ProblemMessage();
+            problemMessage.setSid(submissionId);
+            SubmissionStatusMessage submissionStatusMessage = SubmissionStatusMessage.builder()
+                    .userId(submission.getUserId())
+                    .problemId(problemId)
+                    .submissionId(submissionId)
+                    .status(submissionResult.getStatus()).build();
+            rabbitTemplate.convertAndSend(RabbitConstant.SUBMISSION_STATUS_EXCHANGE,
+                    RabbitConstant.SUBMISSION_STATUS_KEY, submissionStatusMessage);
         } finally {
             // 最终清理沙箱文件（无论成功失败都执行）
             cleanSandboxFile(executableFileId);
@@ -296,9 +299,9 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
      * @param submissionId
      */
     private void sendProblemStatMessage(Long submissionId) {
-        ProblemMessage problemMessage = new ProblemMessage();
-        problemMessage.setSid(submissionId);
-        rabbitTemplate.convertAndSend(RabbitConstant.PROBLEM_EXCHANGE, RabbitConstant.PROBLEM_ROUTING_KEY, problemMessage);
+//        ProblemMessage problemMessage = new ProblemMessage();
+//        problemMessage.setSid(submissionId);
+//        rabbitTemplate.convertAndSend(RabbitConstant.PROBLEM_EXCHANGE, RabbitConstant.PROBLEM_ROUTING_KEY, problemMessage);
     }
 
 
@@ -428,6 +431,8 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
         }
         return result;
     }
+
+
     private void checkCompileError(Submission submission, SubmissionResult submissionResult, Result compileResult) {
         if (!compileResult.getStatus().equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
             // 返回编译错误

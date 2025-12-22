@@ -141,7 +141,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         loginVO.setUserVO(userVO);
         String jsonStr = JSONUtil.toJsonStr(userVO);
         // 将userVO，保存到Redis
-        stringRedisTemplate.opsForValue().set(RedisConstant.USER_KEY + user.getId(),
+        stringRedisTemplate.opsForValue().set(RedisConstant.CACHE_USER_KEY + user.getId(),
                 jsonStr, 7, TimeUnit.DAYS);
         return loginVO;
     }

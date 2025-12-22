@@ -7,7 +7,11 @@ package com.wxc.oj.constant;
 public class RabbitConstant {
 
     public static final String SUBMISSION_QUEUE = "submission";
-    public static final String PROBLEM_EXCHANGE = "problem_exchange";
+//    public static final String PROBLEM_EXCHANGE = "problem_exchange";
+    public static final String SUBMISSION_STATUS_QUEUE = "submission_status_queue";
+    public static final String SUBMISSION_STATUS_EXCHANGE = "submission_status_exchange";
+    public static final String SUBMISSION_STATUS_KEY = "submission_status_key";
+
     public static final String PROBLEM_ROUTING_KEY = "problem_key";
     public static final String SUBMISSION_EXCHANGE = "amq.direct";
     public static final String SUBMISSION_ROUTING_KEY = "submission";
