@@ -20,6 +20,7 @@ import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Submission;
 import com.wxc.oj.model.po.User;
+import com.wxc.oj.model.vo.submission.ListSubmissionVO;
 import com.wxc.oj.model.vo.submission.ProblemStatisticsVO;
 import com.wxc.oj.model.vo.submission.SubmissionStatusCount;
 import com.wxc.oj.service.SubmissionService;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cn.hutool.core.bean.BeanUtil.copyProperties;
 import static com.wxc.oj.constant.RedisConstant.AC_PROBLEMS_KEY;
 import static com.wxc.oj.constant.RedisConstant.AC_RANK_KEY;
 
@@ -120,7 +122,7 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
     }
 
     @Override
-    public Page<SubmissionVO> listByPage(SubmissionQueryDTO submissionQueryDTO) {
+    public Page<ListSubmissionVO> listByPage(SubmissionQueryDTO submissionQueryDTO) {
         long current = submissionQueryDTO.getCurrent();
         long size = submissionQueryDTO.getPageSize();
         Long problemId = submissionQueryDTO.getProblemId();
@@ -136,7 +138,7 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
                 .eq(StringUtils.isNotEmpty(judgeResult) && !judgeResult.equals("不限结果"),Submission::getStatusDescription, judgeResult);
         queryWrapper.orderByDesc(Submission::getCreateTime);
         Page<Submission> submissionPage = this.page(new Page<>(current, size), queryWrapper);
-        Page<SubmissionVO> submissionVOPage = this.getSubmissionVOPage(submissionPage);
+        Page<ListSubmissionVO> submissionVOPage = this.getSubmissionVOPage(submissionPage);
         return submissionVOPage;
     }
 
@@ -319,18 +321,37 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
      * @return
      */
     @Override
-    public Page<SubmissionVO> getSubmissionVOPage(Page<Submission> submissionPage) {
+    public Page<ListSubmissionVO> getSubmissionVOPage(Page<Submission> submissionPage) {
         // 获取当前页面的所有submission
         List<Submission> submissionList = submissionPage.getRecords();
         // 创建一个空的页面 存储 submissionVO
-        Page<SubmissionVO> submissionVOPage = new Page<>(submissionPage.getCurrent(),
+        Page<ListSubmissionVO> submissionVOPage = new Page<>(submissionPage.getCurrent(),
                 submissionPage.getSize(), submissionPage.getTotal());
         // 不进行用户关联
-        List<SubmissionVO> submissionVOList = submissionList.stream().map(submission -> {
-            return submissionToVO(submission);
+        List<ListSubmissionVO> submissionVOList = submissionList.stream().map(submission -> {
+            return this.submission2ListVO(submission);
         }).collect(Collectors.toList());
         submissionVOPage.setRecords(submissionVOList);
         return submissionVOPage;
+    }
+
+
+    public ListSubmissionVO submission2ListVO(Submission submission) {
+        ListSubmissionVO listSubmissionVO = new ListSubmissionVO();
+        copyProperties(submission, listSubmissionVO);
+        Long problemId = submission.getProblemId();
+        Problem problem = problemService.getById(problemId);
+        String userAccount = userService.getById(submission.getUserId()).getUserAccount();
+        listSubmissionVO.setProblemTitle(problem.getTitle());
+        listSubmissionVO.setProblemId(problemId);
+        listSubmissionVO.setUserAccount(userAccount);
+        String submissionResult = submission.getSubmissionResult();
+        listSubmissionVO.setCodeLength(submission.getSourceCode().length());
+        SubmissionResult result = JSONUtil.toBean(submissionResult, SubmissionResult.class);
+        listSubmissionVO.setScore(result.getScore());
+        listSubmissionVO.setTotalTime(result.getTotalTime());
+        listSubmissionVO.setMemoryUsed(result.getMemoryUsed());
+        return listSubmissionVO;
     }
 }
 

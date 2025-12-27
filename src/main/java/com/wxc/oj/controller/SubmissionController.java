@@ -10,6 +10,7 @@ import com.wxc.oj.model.dto.submission.SubmissionAddRequest;
 import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Submission;
 import com.wxc.oj.model.vo.dayRank.DailyRankVO;
+import com.wxc.oj.model.vo.submission.ListSubmissionVO;
 import com.wxc.oj.model.vo.submission.ProblemStatisticsVO;
 import com.wxc.oj.model.vo.submission.SubmissionVO;
 import com.wxc.oj.service.RankService;
@@ -63,9 +64,9 @@ public class SubmissionController {
      * 按CreateTime降序排序
      */
     @PostMapping("/list/page")
-    public BaseResponse<Page<SubmissionVO>> listSubmissionByPage(@RequestBody
+    public BaseResponse<Page<ListSubmissionVO>> listSubmissionByPage(@RequestBody
                                                          SubmissionQueryDTO submissionQueryDTO) {
-        Page<SubmissionVO> submissionVOPage
+        Page<ListSubmissionVO> submissionVOPage
                 = submissionService.listByPage(submissionQueryDTO);
         return ResultUtils.success(submissionVOPage);
     }

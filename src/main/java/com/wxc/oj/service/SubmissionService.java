@@ -5,6 +5,7 @@ import com.wxc.oj.model.dto.submission.SubmissionAddRequest;
 import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Submission;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wxc.oj.model.vo.submission.ListSubmissionVO;
 import com.wxc.oj.model.vo.submission.ProblemStatisticsVO;
 import com.wxc.oj.model.vo.submission.SubmissionVO;
 
@@ -18,7 +19,7 @@ public interface SubmissionService extends IService<Submission> {
 
     ProblemStatisticsVO getProblemStatisticsVO(Long problemId);
 
-    Page<SubmissionVO> listByPage(SubmissionQueryDTO submissionQueryDTO);
+    Page<ListSubmissionVO> listByPage(SubmissionQueryDTO submissionQueryDTO);
 
     SubmissionVO submitCode(SubmissionAddRequest submissionAddRequest);
 
@@ -26,5 +27,5 @@ public interface SubmissionService extends IService<Submission> {
 
     SubmissionVO submissionToVO(Submission submission);
 
-    Page<SubmissionVO> getSubmissionVOPage(Page<Submission> submissionPage);
+    Page<ListSubmissionVO> getSubmissionVOPage(Page<Submission> submissionPage);
 }
