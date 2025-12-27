@@ -19,6 +19,8 @@ import com.wxc.oj.model.queueMessage.ContestMessage;
 import com.wxc.oj.model.vo.contest.ContestProblemVO;
 import com.wxc.oj.model.vo.contest.ContestSubmissionVO;
 import com.wxc.oj.model.vo.contest.ContestVO;
+import com.wxc.oj.model.vo.problem.ListProblemVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
 import com.wxc.oj.model.vo.rank.RankListVO;
 import com.wxc.oj.model.vo.rank.RankProblemVO;
 import com.wxc.oj.model.vo.rank.RankItem;
@@ -245,7 +247,6 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
      *
      * @return
      */
-    @Override
     public void contestInStatus_0(ContestAddRequest request) {
         this.validateContest(request);
 
@@ -395,14 +396,14 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
         ContestVO contestVO = new ContestVO();
         Long contestId = contest.getId();
         Integer playerCount = this.getContestPlayerCount(contest.getId());
-        List<ProblemVO> problemVOList = this.getProblemVOListByContestId(contestId);
+        List<ListProblemVO> problemVOListByContestId = this.getProblemVOListByContestId(contestId);
 
 
         copyProperties(contest, contestVO);
         contestVO.setIsPublic(contest.getIsPublic() == 0 ? false : true);
         contestVO.setPlayerCount(playerCount);
         contestVO.setHostName(userService.getById(contest.getHostId()).getUserName());
-        contestVO.setProblemVOList(problemVOList);
+        contestVO.setProblemVOList(problemVOListByContestId);
         contestVO.setDuration(Integer.valueOf(contest.getDuration() / 1000 / 60));
         contestVO.setEndTime(new Date(contest.getStartTime().getTime() + contest.getDuration()));
 
@@ -455,7 +456,7 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
      * @return
      */
     @Override
-    public List<ProblemVO> getProblemVOListByContestId(Long contestId) {
+    public List<ListProblemVO> getProblemVOListByContestId(Long contestId) {
         LambdaQueryWrapper<ContestProblem> problemQueryWrapper = new LambdaQueryWrapper<>();
         problemQueryWrapper.eq(ContestProblem::getContestId, contestId)
                 .select(ContestProblem::getProblemId);
@@ -465,7 +466,7 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
             return new ArrayList<>();
         }
         List<Problem> problems = problemService.listByIds(problemIds);
-        List<ProblemVO> problemVOListByProblemList = problemService.getProblemVOListByProblemList(problems);
+        List<ListProblemVO> problemVOListByProblemList = problemService.getProblemVOListByProblemList(problems);
         return problemVOListByProblemList;
     }
 
@@ -656,7 +657,7 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
         if (problem == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目不存在");
         }
-        ProblemVO problemVO = problemService.getProblemVOWithoutContent(problem);
+        ProblemVO problemVO = problemService.problem2VO(problem);
         ContestProblemVO contestProblemVO = new ContestProblemVO();
         BeanUtils.copyProperties(problemVO, contestProblemVO);
         contestProblemVO.setPindex(contestProblem.getPindex());
@@ -715,7 +716,7 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
         if (problem == null) {
             return null;
         }
-        ProblemVO problemVO = problemService.getProblemVOWithContent(problem);
+        ProblemVO problemVO = problemService.problem2VO(problem);
         ContestProblemVO contestProblemVO = new ContestProblemVO();
         BeanUtils.copyProperties(problemVO, contestProblemVO);
         contestProblemVO.setPindex(contestProblem.getPindex());

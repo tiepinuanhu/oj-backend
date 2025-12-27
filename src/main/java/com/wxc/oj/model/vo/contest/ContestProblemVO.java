@@ -1,6 +1,6 @@
 package com.wxc.oj.model.vo.contest;
 
-import com.wxc.oj.model.vo.ProblemVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
 import lombok.Data;
 
 import java.io.Serializable;

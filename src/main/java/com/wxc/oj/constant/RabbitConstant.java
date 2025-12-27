@@ -8,9 +8,11 @@ public class RabbitConstant {
 
     public static final String SUBMISSION_QUEUE = "submission";
 //    public static final String PROBLEM_EXCHANGE = "problem_exchange";
-    public static final String SUBMISSION_STATUS_QUEUE = "submission_status_queue";
-    public static final String SUBMISSION_STATUS_EXCHANGE = "submission_status_exchange";
-    public static final String SUBMISSION_STATUS_KEY = "submission_status_key";
+    public static final String SUBMISSION_STATUS_QUEUE = "submission.problem.queue";
+    public static final String SUBMISSION_STATUS_AC_QUEUE = "ac.rank.queue";
+    public static final String SUBMISSION_STATUS_TOPIC = "submission.status";
+    public static final String SUBMISSION_STATUS_EXCHANGE = "submission.status.exchange";
+//    public static final String SUBMISSION_STATUS_KEY = "submission_status_key";
 
     public static final String PROBLEM_ROUTING_KEY = "problem_key";
     public static final String SUBMISSION_EXCHANGE = "amq.direct";

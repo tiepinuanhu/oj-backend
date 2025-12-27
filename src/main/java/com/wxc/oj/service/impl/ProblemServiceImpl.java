@@ -1,5 +1,6 @@
 package com.wxc.oj.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -21,8 +22,9 @@ import com.wxc.oj.model.judge.JudgeConfig;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Tag;
 import com.wxc.oj.model.po.User;
+import com.wxc.oj.model.vo.problem.ListProblemVO;
 import com.wxc.oj.service.ProblemService;
-import com.wxc.oj.model.vo.ProblemVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
 import com.wxc.oj.model.vo.UserVO;
 import com.wxc.oj.service.ProblemTagService;
 import com.wxc.oj.service.TagService;
@@ -78,7 +80,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
         if (problem == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "题目不存在");
         }
-        ProblemVO problemVOWithContent = this.getProblemVOWithContent(problem);
+        ProblemVO problemVOWithContent = this.problem2VO(problem);
         stringRedisTemplate.opsForValue().set(RedisConstant.CACHE_PROBLEM_KEY + problemId, JSONUtil.toJsonStr(problemVOWithContent));
         return problemVOWithContent;
     }
@@ -150,12 +152,15 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
     }
 
 
+
+
     /**
      * 接受DTO对象, 查询满足请求的所有Problem对象,并封装成VO对象
      * @param problemQueryRequest
      * @return
      */
-    public Page<ProblemVO> listProblemVO(ProblemQueryRequest problemQueryRequest) {
+    @Override
+    public Page<ListProblemVO> listProblemVO(ProblemQueryRequest problemQueryRequest) {
         int current = problemQueryRequest.getCurrent();
         int pageSize = problemQueryRequest.getPageSize();
         if (problemQueryRequest == null) {
@@ -168,7 +173,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
         LambdaQueryWrapper<Problem> queryWrapper = getQueryWrapper(problemQueryRequest);
         // 查询
         Page<Problem> problemPage = this.page(new Page<>(current, pageSize), queryWrapper);
-        Page<ProblemVO> problemVOPage = this.getProblemVOPage(problemPage);
+        Page<ListProblemVO> problemVOPage = this.getProblemVOPage(problemPage);
         // 返回
         return problemVOPage;
     }
@@ -191,6 +196,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
     }
 
 
+
     /**
      * 生成要返回给前端的VO对象
      * 进行了数据脱敏
@@ -198,7 +204,6 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
      * @param problem
      * @return
      */
-    @Override
     public ProblemVO getProblemVOWithoutContent(Problem problem) {
         // 将entity转为vo
         ProblemVO problemVO = new ProblemVO();
@@ -235,7 +240,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
      * @return
      */
     @Override
-    public ProblemVO getProblemVOWithContent(Problem problem) {
+    public ProblemVO problem2VO(Problem problem) {
         // 将entity转为vo
         ProblemVO problemVO = new ProblemVO();
         copyProperties(problem, problemVO);
@@ -260,19 +265,38 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
         problemVO.setJudgeConfig(JSONUtil.toBean(problem.getJudgeConfig(), JudgeConfig.class));
         return problemVO;
     }
+
     /**
      * 生成要返回给前端的VO对象
      * 进行了数据脱敏
      */
     @Override
-    public List<ProblemVO> getProblemVOListByProblemList(List<Problem> problemList) {
-        ArrayList<ProblemVO> problemVOList = new ArrayList<>();
+    public List<ListProblemVO> getProblemVOListByProblemList(List<Problem> problemList) {
+        List<ListProblemVO> problemVOList = new ArrayList<>();
         for (Problem problem : problemList) {
-            ProblemVO problemVO = getProblemVOWithoutContent(problem);
-            problemVOList.add(problemVO);
+            ListProblemVO listProblemVO = problem2ListVO(problem);
+            problemVOList.add(listProblemVO);
         }
         return problemVOList;
     }
+
+
+    public ListProblemVO problem2ListVO (Problem problem) {
+        ListProblemVO listProblemVO = new ListProblemVO();
+        copyProperties(problem, listProblemVO);
+        List<Tag> tags = tagService.listTagsByProblemId(problem.getId());
+        listProblemVO.setTags(tags);
+        listProblemVO.setIsPublic(problem.getIsPublic() == 1);
+        listProblemVO.setPublisherId(problem.getUserId());
+
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getId, problem.getUserId())
+                         .select(User::getUserAccount);
+        User user = userService.getOne(queryWrapper);
+        listProblemVO.setPublisherName(user.getUserAccount());
+        return  listProblemVO;
+    }
+
     /**
      * 生成分页的VO对象
      * 主要是修改Page对象的records属性
@@ -281,14 +305,13 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
      * @param problemPage
      * @return
      */
-    @Override
-    public Page<ProblemVO> getProblemVOPage(Page<Problem> problemPage) {
+    public Page<ListProblemVO> getProblemVOPage(Page<Problem> problemPage) {
         List<Problem> problemList = problemPage.getRecords();
-        Page<ProblemVO> problemVOPage = new Page<>(problemPage.getCurrent(), problemPage.getSize(), problemPage.getTotal());
+        Page<ListProblemVO> problemVOPage = new Page<>(problemPage.getCurrent(), problemPage.getSize(), problemPage.getTotal());
         if (CollUtil.isEmpty(problemList)) {
             return problemVOPage;
         }
-        List<ProblemVO> problemVOList = getProblemVOListByProblemList(problemList);
+        List<ListProblemVO> problemVOList = getProblemVOListByProblemList(problemList);
         problemVOPage.setRecords(problemVOList);
         return problemVOPage;
     }
@@ -364,7 +387,7 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
         }
 
         stringRedisTemplate.delete(RedisConstant.CACHE_PROBLEM_KEY + problem.getId());
-        ProblemVO problemVOWithContent = this.getProblemVOWithContent(problem);
+        ProblemVO problemVOWithContent = this.problem2VO(problem);
         return problemVOWithContent;
     }
 

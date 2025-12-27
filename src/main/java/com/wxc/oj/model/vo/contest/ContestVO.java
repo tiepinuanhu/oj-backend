@@ -1,6 +1,7 @@
 package com.wxc.oj.model.vo.contest;
 
-import com.wxc.oj.model.vo.ProblemVO;
+import com.wxc.oj.model.vo.problem.ListProblemVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -38,7 +39,7 @@ public class ContestVO implements Serializable {
     /**
      * 题目列表
      */
-    private List<ProblemVO> problemVOList;
+    private List<ListProblemVO> problemVOList;
 
     private Integer playerCount;
 

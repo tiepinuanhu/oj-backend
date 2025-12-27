@@ -5,8 +5,8 @@ import com.wxc.oj.model.dto.submission.SubmissionAddRequest;
 import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Submission;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wxc.oj.model.vo.problem.ProblemStatisticsVO;
-import com.wxc.oj.model.vo.problem.SubmissionVO;
+import com.wxc.oj.model.vo.submission.ProblemStatisticsVO;
+import com.wxc.oj.model.vo.submission.SubmissionVO;
 
 /**
 * @author 王新超

@@ -1,6 +1,5 @@
 package com.wxc.oj.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -13,7 +12,6 @@ import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.mapper.SubmissionMapper;
-import com.wxc.oj.model.queueMessage.ProblemMessage;
 import com.wxc.oj.model.queueMessage.SubmissionStatusMessage;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.model.queueMessage.SubmissionMessage;
@@ -22,11 +20,11 @@ import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Submission;
 import com.wxc.oj.model.po.User;
-import com.wxc.oj.model.vo.problem.ProblemStatisticsVO;
-import com.wxc.oj.model.vo.problem.SubmissionStatusCount;
+import com.wxc.oj.model.vo.submission.ProblemStatisticsVO;
+import com.wxc.oj.model.vo.submission.SubmissionStatusCount;
 import com.wxc.oj.service.SubmissionService;
-import com.wxc.oj.model.vo.ProblemVO;
-import com.wxc.oj.model.vo.problem.SubmissionVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
+import com.wxc.oj.model.vo.submission.SubmissionVO;
 import com.wxc.oj.model.vo.UserVO;
 import com.wxc.oj.service.ProblemService;
 import com.wxc.oj.service.UserService;
@@ -46,13 +44,16 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.wxc.oj.constant.RedisConstant.AC_PROBLEMS_KEY;
+import static com.wxc.oj.constant.RedisConstant.AC_RANK_KEY;
+
 /**
 * @author 王新超
 * @description 针对表【submission】的数据库操作Service实现
 * @createDate 2024-02-28 10:33:17
 */
 @Service
-@Slf4j(topic = "SubmissionServiceImpl")
+@Slf4j(topic = "💕💕💕")
 public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submission> implements SubmissionService {
 
 
@@ -70,18 +71,11 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
     StringRedisTemplate stringRedisTemplate;
     @Autowired
     private RedissonClient redissonClient;
-    @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
 
-//    public static final String ROUTING_KEY = "submission";
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
-//    private static final String PROBLEM_KEY = "problem:";
-    /**
-     * 默认的直连交换机
-     */
-//    public static final String EXCHANGE = "amq.direct";
 
-//    public static final String PROBLEM_QUEUE = "problem_queue";
 
     @Override
     public ProblemStatisticsVO getProblemStatisticsVO(Long problemId) {
@@ -147,6 +141,36 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
     }
 
 
+    /**
+     * 监听ac.rank.queue
+     * 根据提交结果修改用户AC统计信息
+     * @param submissionStatusMessage
+     */
+    @RabbitListener(queues = RabbitConstant.SUBMISSION_STATUS_AC_QUEUE, messageConverter = "jacksonConverter")
+    public void changeRank(SubmissionStatusMessage submissionStatusMessage) {
+        log.info("收到消息");
+        int status = submissionStatusMessage.getStatus();
+        if (status != SubmissionStatusEnum.ACCEPTED.getStatus()) {
+            return;
+        }
+        Long userId = submissionStatusMessage.getUserId();
+        Long problemId = submissionStatusMessage.getProblemId();
+        String currentDateStr = DateUtils.getCurrentDateStr();
+
+        String dedupKey = AC_PROBLEMS_KEY + currentDateStr + ":" + userId;
+
+        Boolean firstAc = redisTemplate.opsForSet()
+                .add(dedupKey, problemId.toString()) == 1;
+
+        if (!firstAc) {
+            return; // 已经 AC 过，不计数
+        }
+        String rankKey = AC_RANK_KEY + currentDateStr;
+        redisTemplate.opsForZSet()
+                .incrementScore(rankKey, userId, 1);
+//        redisTemplate.expire(dedupKey, Duration.ofDays(1));
+    }
+
 
     /**
      * 根据提交结果修改的统计信息
@@ -155,9 +179,10 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
      */
     @RabbitListener(queues = RabbitConstant.SUBMISSION_STATUS_QUEUE, messageConverter = "jacksonConverter")
     public void changeProblem(SubmissionStatusMessage submissionStatusMessage) {
+        log.info("收到消息");
         Long problemId = submissionStatusMessage.getProblemId();
         Long submissionId = submissionStatusMessage.getSubmissionId();
-        Long userId = submissionStatusMessage.getUserId();
+
         Submission submission = this.getById(submissionId);
         SubmissionVO submissionVO = this.submissionToVO(submission);
         SubmissionResult submissionResult = submissionVO.getSubmissionResult();
@@ -177,12 +202,6 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
             // score都是100，最终增加的AC数量可能会有误
             updateWrapper.set(Problem::getAcceptedNum, problem.getAcceptedNum() + 1)
                         .set(Problem::getSubmittedNum, problem.getSubmittedNum() + 1);
-            // todo: 添加用户AC题目数
-            String currentDateStr = DateUtils.getCurrentDateStr();
-            // 添加用户AC题目id，使用Set
-            redisTemplate.opsForSet().add(RedisConstant.AC_PROBLEMS_KEY + currentDateStr +":"+ userId, problemId);
-            stringRedisTemplate.opsForZSet().incrementScore(RedisConstant.AC_RANK + currentDateStr,
-                    String.valueOf(userId), 1);
         } else {
             updateWrapper.eq(Problem::getId, problemId)
                     .set(Problem::getSubmittedNum, problem.getSubmittedNum() + 1);
@@ -282,7 +301,7 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
 
         // 设置submission的题目具体信息
         Problem byId = problemService.getById(submissionVO.getProblemId());
-        ProblemVO problemVO = problemService.getProblemVOWithoutContent(byId);
+        ProblemVO problemVO = problemService.problem2VO(byId);
         submissionVO.setProblemId(problemVO.getId());
         submissionVO.setProblemTitle(problemVO.getTitle());
 

@@ -12,10 +12,10 @@ import com.wxc.oj.model.po.ContestProblem;
 import com.wxc.oj.model.vo.contest.ContestProblemVO;
 import com.wxc.oj.model.vo.contest.ContestSubmissionVO;
 import com.wxc.oj.model.vo.contest.ContestVO;
-import com.wxc.oj.model.vo.ProblemVO;
+import com.wxc.oj.model.vo.problem.ListProblemVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
 import com.wxc.oj.model.queueMessage.ContestMessage;
 import com.wxc.oj.model.vo.rank.RankListVO;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -31,10 +31,6 @@ public interface ContestService extends IService<Contest> {
 
     boolean addContestWithBaseInfo(ContestAddRequest request);
 
-    void contestInStatus_0(ContestAddRequest request);
-
-    void contestInStatus_1(ContestMessage contest);
-    void contestInStatus_2(ContestMessage contest);
     ContestVO getContestVOWithoutProblemListByContest(Contest contest);
     ContestVO getContestVOWithProblemListByContest(Contest contest);
     Page<ContestVO> getContestVOPage(PageRequest pageRequest);
@@ -52,7 +48,7 @@ public interface ContestService extends IService<Contest> {
 
     boolean canRegister(Long userId, Long contestId);
 
-    List<ProblemVO> getProblemVOListByContestId(Long contestId);
+    List<ListProblemVO> getProblemVOListByContestId(Long contestId);
 
     ContestProblemVO contestProblemToVO(ContestProblem contestProblem);
 

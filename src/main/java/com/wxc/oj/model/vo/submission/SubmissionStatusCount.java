@@ -1,4 +1,4 @@
-package com.wxc.oj.model.vo.problem;
+package com.wxc.oj.model.vo.submission;
 
 import lombok.Data;
 

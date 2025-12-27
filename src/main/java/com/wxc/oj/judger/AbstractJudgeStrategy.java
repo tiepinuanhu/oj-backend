@@ -39,6 +39,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.wxc.oj.constant.RabbitConstant.SUBMISSION_STATUS_TOPIC;
+
 /**
  * 判题模板抽象类（封装通用判题流程）
  * 通用方法抽取到父类中
@@ -284,8 +286,12 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
                     .problemId(problemId)
                     .submissionId(submissionId)
                     .status(submissionResult.getStatus()).build();
-            rabbitTemplate.convertAndSend(RabbitConstant.SUBMISSION_STATUS_EXCHANGE,
-                    RabbitConstant.SUBMISSION_STATUS_KEY, submissionStatusMessage);
+            // 发送消息异步更新题目统计数据，和用户排行榜
+            rabbitTemplate.convertAndSend(
+                    RabbitConstant.SUBMISSION_STATUS_EXCHANGE,
+                    SUBMISSION_STATUS_TOPIC,
+                    submissionStatusMessage);
+            log.info("💕💕💕消息已经发送");
         } finally {
             // 最终清理沙箱文件（无论成功失败都执行）
             cleanSandboxFile(executableFileId);

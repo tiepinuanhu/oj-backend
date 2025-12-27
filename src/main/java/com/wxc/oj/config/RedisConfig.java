@@ -37,6 +37,25 @@ public class RedisConfig {
 //    }
 
     @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+
+        // key 用 String
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+
+        // value 用 JSON
+        GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer();
+
+        template.setValueSerializer(jsonSerializer);
+        template.setHashValueSerializer(jsonSerializer);
+
+        template.afterPropertiesSet();
+        return template;
+    }
+    @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
         StringRedisTemplate template = new StringRedisTemplate(factory);
         // 强制设置字符串序列化器

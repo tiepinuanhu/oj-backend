@@ -14,13 +14,16 @@ public class RedisConstant {
     public static final String USER_RANK_KEY = "oj:leaderboard:user:";
 
     // Redis Key命名规范
-    public static final  String dailyRankKey = "oj:leaderboard:daily:";
+//    public static final  String dailyRankKey = "oj:leaderboard:daily:";
 //    public static final  String weeklyRankKey = "leaderboard:weekly:";
 //    public static final  String monthlyRankKey = "leaderboard:monthly:";
 
 
 
-    public static final String AC_PROBLEMS_KEY = "oj:ac:problems:";
-    public static final String AC_RANK = "oj:ac:rank:";
+    // 保存用户每天AC的题目Id
+    public static final String AC_PROBLEMS_KEY = "oj:ac:problems:"; // oj:ac:dedup:{yyyyMMdd}:{userId}
+    // 保存每天用户的AC数量
+    public static final String AC_RANK_KEY = "oj:rank:daily:ac:"; // oj:rank:daily:ac:{yyyyMMdd}
+
 
 }

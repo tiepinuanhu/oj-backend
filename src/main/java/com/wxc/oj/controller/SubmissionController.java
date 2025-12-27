@@ -9,12 +9,16 @@ import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.model.dto.submission.SubmissionAddRequest;
 import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Submission;
-import com.wxc.oj.model.vo.problem.ProblemStatisticsVO;
-import com.wxc.oj.model.vo.problem.SubmissionVO;
+import com.wxc.oj.model.vo.dayRank.DailyRankVO;
+import com.wxc.oj.model.vo.submission.ProblemStatisticsVO;
+import com.wxc.oj.model.vo.submission.SubmissionVO;
+import com.wxc.oj.service.RankService;
 import com.wxc.oj.service.SubmissionService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("submission")
@@ -24,6 +28,19 @@ public class SubmissionController {
 
     @Resource
     private SubmissionService submissionService;
+
+
+    @Resource
+    private RankService rankService;
+
+
+    @GetMapping("dailyRank")
+    public BaseResponse<List<DailyRankVO>> getDailyRank() {
+        List<DailyRankVO> todayTop10 = rankService.getTodayTop10();
+        return ResultUtils.success(todayTop10);
+    }
+
+
 
     /**
      * 提交题目

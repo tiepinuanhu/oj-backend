@@ -16,6 +16,62 @@ import java.util.Map;
 @Slf4j(topic = "RabbitConfig💕💕💕💕")
 public class RabbitConfig {
 
+// ==================================================================================================================
+    /**
+     * topic交换机，用于转发submission信息。
+     * 消费者：
+     * 1. 修改题目信息的消费者
+     * 2. 修改用户AC数的消费者
+     * @return
+     */
+    @Bean
+    public TopicExchange submissionStatusExchange() {
+        return new TopicExchange("submission.status.exchange");
+    }
+
+    @Bean
+    public Queue acceptedRankQueue() {
+        return QueueBuilder.durable("ac.rank.queue").build();
+    }
+
+    @Bean
+    public Queue submissionProblemQueue() {
+        return QueueBuilder.durable("submission.problem.queue").build();
+    }
+
+
+    @Bean
+    public Binding rankBinding() {
+        return BindingBuilder
+                .bind(acceptedRankQueue())
+                .to(submissionStatusExchange())
+                .with("submission.status");
+    }
+
+    @Bean
+    public Binding problemBinding() {
+        return BindingBuilder
+                .bind(submissionProblemQueue())
+                .to(submissionStatusExchange())
+                .with("submission.status");
+    }
+    // ==================================================================================================================
+//    /**
+//     * 绑定directExchange和submission队列，并指定routingKey为submission
+//     * @param exchange
+//     * @param queue
+//     * @return
+//     */
+//    @Bean
+//    public Binding binding_problem(@Qualifier("submission_status_exchange") Exchange exchange,
+//                                   @Qualifier("submission_status_queue") Queue queue) {
+//        //将我们刚刚定义的交换机和队列进行绑定
+//        return BindingBuilder
+//                .bind(queue)   //绑定队列
+//                .to(exchange)  //到交换机
+//                .with("submission_status_key")   //使用自定义的routingKey
+//                .noargs();
+//    }
 
 
     /**
@@ -96,33 +152,9 @@ public class RabbitConfig {
         return ExchangeBuilder.directExchange("submission_status_exchange").build();
     }
 
-    /**
-     * 创建消息队列，用于存储submissionID。
-     * @return
-     */
-    @Bean("submission_status_queue")     //定义消息队列
-    public Queue problem_queue(){
-        return QueueBuilder
-                .durable("submission_status_queue")   //非持久化类型
-                .build();
-    }
 
-    /**
-     * 绑定directExchange和submission队列，并指定routingKey为submission
-     * @param exchange
-     * @param queue
-     * @return
-     */
-    @Bean
-    public Binding binding_problem(@Qualifier("submission_status_exchange") Exchange exchange,
-                                   @Qualifier("submission_status_queue") Queue queue) {
-        //将我们刚刚定义的交换机和队列进行绑定
-        return BindingBuilder
-                .bind(queue)   //绑定队列
-                .to(exchange)  //到交换机
-                .with("submission_status_key")   //使用自定义的routingKey
-                .noargs();
-    }
+
+
 
     /**
      * 创建延迟交换机

@@ -1,4 +1,4 @@
-package com.wxc.oj.model.vo;
+package com.wxc.oj.model.vo.problem;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

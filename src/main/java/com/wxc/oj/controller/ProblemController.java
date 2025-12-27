@@ -1,6 +1,5 @@
 package com.wxc.oj.controller;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wxc.oj.annotation.AuthCheck;
@@ -14,16 +13,13 @@ import com.wxc.oj.model.dto.problem.*;
 import com.wxc.oj.model.po.ContestProblem;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.User;
-import com.wxc.oj.model.judge.JudgeConfig;
-import com.wxc.oj.model.vo.ProblemVO;
-import com.wxc.oj.model.vo.contest.AddingProblemVO;
+import com.wxc.oj.model.vo.problem.ListProblemVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
 import com.wxc.oj.model.vo.contest.ContestProblemSimpleVO;
 import com.wxc.oj.service.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.wxc.oj.enums.UserRoleEnum.ADMIN;
 import static org.springframework.beans.BeanUtils.copyProperties;
@@ -304,7 +299,7 @@ public class ProblemController {
         // 限制爬虫
         long size = problemQueryRequest.getPageSize();
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<ProblemVO> problemVOPage = problemService.listProblemVO(problemQueryRequest);
-        return ResultUtils.success(problemVOPage);
+        Page<ListProblemVO> listProblemVOPage = problemService.listProblemVO(problemQueryRequest);
+        return ResultUtils.success(listProblemVOPage);
     }
 }

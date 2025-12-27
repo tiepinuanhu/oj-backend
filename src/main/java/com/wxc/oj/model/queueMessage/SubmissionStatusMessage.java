@@ -3,6 +3,7 @@ package com.wxc.oj.model.queueMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author wangxinchao
@@ -11,6 +12,7 @@ import lombok.Data;
 @Builder
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class SubmissionStatusMessage {
     private Long submissionId;
     private int status;

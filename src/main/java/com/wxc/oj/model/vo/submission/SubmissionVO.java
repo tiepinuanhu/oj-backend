@@ -1,4 +1,4 @@
-package com.wxc.oj.model.vo.problem;
+package com.wxc.oj.model.vo.submission;
 
 import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

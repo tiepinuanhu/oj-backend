@@ -7,8 +7,8 @@ import com.wxc.oj.model.dto.problem.ProblemAddRequest;
 import com.wxc.oj.model.dto.problem.ProblemEditRequest;
 import com.wxc.oj.model.dto.problem.ProblemQueryRequest;
 import com.wxc.oj.model.po.Problem;
-import com.wxc.oj.model.vo.ProblemVO;
-import com.wxc.oj.model.vo.problem.ProblemStatisticsVO;
+import com.wxc.oj.model.vo.problem.ListProblemVO;
+import com.wxc.oj.model.vo.problem.ProblemVO;
 
 import java.util.List;
 
@@ -38,31 +38,14 @@ public interface ProblemService extends IService<Problem> {
 
 
 
-    /**
-     * 获取帖子封装
-     *
-     * @param post
-     * @return
-     */
-    ProblemVO getProblemVOWithContent(Problem post);
-
     List<ProblemVO> getAllProblemNotPublic();
 
-    ProblemVO getProblemVOWithoutContent(Problem post);
+    ProblemVO problem2VO(Problem problem);
 
-    List<ProblemVO> getProblemVOListByProblemList(List<Problem> problemList);
+    Page<ListProblemVO> listProblemVO(ProblemQueryRequest problemQueryRequest);
 
-    /**
-     * 分页获取帖子封装
-     *
-     * @param postPage
-     * @param request
-     * @return
-     */
-    Page<ProblemVO> getProblemVOPage(Page<Problem> postPage);
 
-    Page<ProblemVO> listProblemVO(ProblemQueryRequest problemQueryRequest);
-
+    List<ListProblemVO> getProblemVOListByProblemList(List<Problem> problemList);
 
     ProblemVO editProblem(ProblemEditRequest request);
 
