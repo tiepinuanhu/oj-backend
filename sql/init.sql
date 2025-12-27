@@ -24,6 +24,9 @@ create table user
     constraint uk_user_account
         unique (user_account) comment '确保用户账号唯一（不可重复注册）'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  comment '用户表（存储系统用户基本信息）';
+INSERT INTO db_oj.user (id, user_account, user_password, user_name, union_id, user_avatar, user_profile, user_role, create_time, update_time, is_deleted) VALUES (2002744707925106690, 'wxc', '5d789a466f021886cc60d6eebd109f26', 'momo', null, null, null, 1, '2025-12-21 14:15:23', '2025-12-21 14:15:59', 0);
+INSERT INTO db_oj.user (id, user_account, user_password, user_name, union_id, user_avatar, user_profile, user_role, create_time, update_time, is_deleted) VALUES (2004743556063502337, 'jack', '5d789a466f021886cc60d6eebd109f26', 'momo', null, null, null, 0, '2025-12-27 02:38:03', '2025-12-27 02:38:03', 0);
+
 -- 题目表
 create table problem
 (
@@ -45,6 +48,287 @@ create table problem
     KEY `idx_is_public` (`is_public`) COMMENT '筛选公开/私有题目',
     KEY `idx_title` (`title`) COMMENT '按标题模糊查询题目'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4    comment '题目表（存储编程题的基本信息）';
+INSERT INTO db_oj.problem (id, title, content, level, submitted_num, accepted_num, judge_config, user_id, create_time, update_time, is_deleted, is_public) VALUES (1, 'A+B Problem', '# P1001 A+B Problem
+
+## 题目背景
+
+**不熟悉算法竞赛的选手请看这里：**
+
+算法竞赛中要求的输出格式中，**不能有多余的内容**，**这也包括了“请输入整数 $\\bm a$ 和 $\\bm b$” 这一类的提示用户输入信息的内容**。若包含了这些内容，将会被认为是 `Wrong Answer`，即洛谷上的 `WA`。在对比代码输出和标准输出时，系统将忽略每一行结尾的空格，以及最后一行之后多余的换行符。
+
+若因此类问题出现本机似乎输出了正确的结果，但是实际提交结果为错误的现象，请勿认为是洛谷评测机出了问题，而是你的代码中可能存在多余的输出信息。用户可以参考在题目末尾提供的代码。
+
+此外，**请善用进入 IDE 模式**，以避免不同平台的评测产生差异。
+
+最后，请不要在对应的题目讨论区中发布自己的题解，请发布到题解区域中，否则将处以删除或禁言的处罚。若发现无法提交题解则表明本题题解数量过多，仍不应发布讨论。若您的做法确实与其他所有题解均不一样，请联系管理员添加题解。
+
+## 题目描述
+
+输入两个整数 $a, b$，输出它们的和（$|a|,|b| \\le {10}^9$）。
+
+注意
+
+1. Pascal 使用 `integer` 会爆掉哦！
+2. 有负数哦！
+3. C/C++ 的 main 函数必须是 `int` 类型。程序正常结束时的返回值必须是 0。这不仅对洛谷其他题目有效，而且也是 NOIP/CSP/NOI 比赛的要求！
+
+好吧，同志们，我们就从这一题开始，向着大牛的路进发。
+
+> 任何一个伟大的思想，都有一个微不足道的开始。
+
+## 输入格式
+
+两个以空格分开的整数。
+
+## 输出格式
+
+一个整数。
+
+## 输入输出样例 #1
+
+### 输入 #1
+
+```
+20 30
+```
+
+### 输出 #1
+
+```
+50
+```
+
+## 说明/提示
+
+**广告**
+
+洛谷出品的算法教材，帮助您更简单的学习基础算法。[【官方网店绝赞热卖中！】>>>](https://item.taobao.com/item.htm?id=637730514783)
+
+[![](https://cdn.luogu.com.cn/upload/image_hosting/njc7dlng.png)](https://item.taobao.com/item.htm?id=637730514783)
+
+**本题各种语言的程序范例：**
+
+C
+```c
+#include <stdio.h>
+
+int main()
+{
+    int a,b;
+    scanf("%d%d",&a,&b);
+    printf("%d\\n", a+b);
+    return 0;
+}
+```
+----------------
+
+C++
+```cpp
+#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+int main()
+{
+    int a,b;
+    cin >> a >> b;
+    cout << a+b << endl;
+    return 0;
+}
+```
+----------------
+
+Pascal
+```pascal
+var a, b: longint;
+begin
+    readln(a,b);
+    writeln(a+b);
+end.
+```
+-----------------
+
+Python 3
+
+```python
+s = input().split()
+print(int(s[0]) + int(s[1]))
+```
+-----------------
+
+Java
+```java
+import java.io.*;
+import java.util.*;
+public class Main {
+    public static void main(String args[]) throws Exception {
+        Scanner cin=new Scanner(System.in);
+        int a = cin.nextInt(), b = cin.nextInt();
+        System.out.println(a+b);
+    }
+}
+```
+-----------------
+
+JavaScript （Node.js）
+
+```javascript
+const fs = require(\'fs\')
+const data = fs.readFileSync(\'/dev/stdin\')
+const result = data.toString(\'ascii\').trim().split(\' \').map(x => parseInt(x)).reduce((a, b) => a + b, 0)
+console.log(result)
+process.exit() // 请注意必须在出口点处加入此行
+```
+
+-----------------
+
+Ruby
+
+```ruby
+a, b = gets.split.map(&:to_i)
+print a+b
+```
+
+-----------------
+
+PHP
+
+```php
+<?php
+$input = trim(file_get_contents("php://stdin"));
+list($a, $b) = explode(\' \', $input);
+echo $a + $b;
+```
+
+-----------------
+
+Rust
+
+```rust
+use std::io;
+
+fn main(){
+    let mut input=String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    let mut s=input.trim().split(\' \');
+
+    let a:i32=s.next().unwrap()
+               .parse().unwrap();
+    let b:i32=s.next().unwrap()
+               .parse().unwrap();
+    println!("{}",a+b);
+}
+```
+
+-----------------
+
+Go
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    var a, b int
+    fmt.Scanf("%d%d", &a, &b)
+    fmt.Println(a+b)
+}
+```
+
+-----------------
+
+C# Mono
+
+```cs
+using System;
+
+public class APlusB{
+    private static void Main(){
+        string[] input = Console.ReadLine().Split(\' \');
+        Console.WriteLine(int.Parse(input[0]) + int.Parse(input[1]));
+    }
+}
+```
+
+------------------
+
+Kotlin
+
+```kotlin
+fun main(args: Array<String>) {
+    val (a, b) = readLine()!!.split(\' \').map(String::toInt)
+    println(a + b)
+}
+```
+
+------------------
+
+Haskell
+
+```haskell
+main = do
+    [a, b] <- (map read . words) `fmap` getLine
+    print (a+b)
+```
+
+------------------
+
+Lua
+
+```lua
+a = io.read(\'*n\')
+b = io.read(\'*n\')
+print(a + b)
+```
+
+------------------
+
+OCaml
+
+```ocaml
+Scanf.scanf "%i %i\\n" (fun a b -> print_int (a + b))
+```
+
+------------------
+
+Julia
+
+```julia
+nums = map(x -> parse(Int, x), split(readline(), " "))
+println(nums[1] + nums[2])
+```
+
+------------------
+
+Scala
+
+```scala
+object Main {
+  def main(args: Array[String]): Unit = {
+    import java.util.Scanner
+
+    val cin = new Scanner(System.in)
+    val a = cin.nextInt()
+    val b = cin.nextInt()
+    System.out.println(a + b)
+  }
+}
+```
+
+------------------
+
+Perl
+
+```perl
+my $in = <STDIN>;
+chomp $in;
+$in = [split /[\\s,]+/, $in];
+my $c = $in->[0] + $in->[1];
+print "$c\\n";
+```', 1, 5, 0, '{"timeLimit":1000,"memoryLimit":128}', 2002744707925106690, '2025-12-21 14:18:57', '2025-12-27 02:39:08', 0, 1);
+
 -- 提交表
 create table submission
 (
@@ -143,6 +427,14 @@ CREATE TABLE `tag` (
    PRIMARY KEY (`id`),
    KEY `idx_name` (`name`) COMMENT '按标签名称查询索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签表';
+INSERT INTO db_oj.tag (id, name, color) VALUES (1, ' 二分', '#FFB6C1');
+INSERT INTO db_oj.tag (id, name, color) VALUES (2, 'DFS', '#800080');
+INSERT INTO db_oj.tag (id, name, color) VALUES (4, 'BFS', '#4B0082');
+INSERT INTO db_oj.tag (id, name, color) VALUES (5, '链表', '#B0C4DE');
+INSERT INTO db_oj.tag (id, name, color) VALUES (6, '双指针', '#00BFFF');
+INSERT INTO db_oj.tag (id, name, color) VALUES (7, '贪心', '#008080');
+INSERT INTO db_oj.tag (id, name, color) VALUES (8, '动态规划', '#D2691E');
+INSERT INTO db_oj.tag (id, name, color) VALUES (9, '搜索', '#DAA520');
 
 -- 题目标签和题目的中间表
 CREATE TABLE `problem_tag` (
@@ -155,3 +447,4 @@ CREATE TABLE `problem_tag` (
     CONSTRAINT `fk_problem_tag_problem` FOREIGN KEY (`problem_id`) REFERENCES `problem` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_problem_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='题目-标签关联表（实现多对多关系）';
+INSERT INTO db_oj.problem_tag (id, problem_id, tag_id, create_time) VALUES (1, 1, 1, '2025-12-21 14:18:57');
