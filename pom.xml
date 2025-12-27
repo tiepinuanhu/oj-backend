@@ -17,6 +17,10 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
         <!--  redis      -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
