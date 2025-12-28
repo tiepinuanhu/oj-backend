@@ -1,8 +1,7 @@
 package com.wxc.oj.openFeign;
 
-import com.wxc.oj.model.dto.sandbox.Result;
-import com.wxc.oj.model.dto.sandbox.SandBoxRequest;
-import lombok.extern.slf4j.Slf4j;
+import com.wxc.oj.model.req.sandbox.Result;
+import com.wxc.oj.model.req.sandbox.SandBoxRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 

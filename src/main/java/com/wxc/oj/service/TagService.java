@@ -14,11 +14,4 @@ public interface TagService extends IService<Tag> {
 
     List<Tag> listTagsByProblemId(Long problemId);
 
-    /**
-     * 通过tags的名称去查
-     * ["二分", "BFS", "DFS"]
-     * @param tagId
-     * @return
-     */
-    List<Long> getProblemIdsByTagNames(List<String> tagNames);
 }

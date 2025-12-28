@@ -2,10 +2,10 @@ package com.wxc.oj.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wxc.oj.common.PageRequest;
-import com.wxc.oj.model.dto.contest.ContestAddRequest;
-import com.wxc.oj.model.dto.contest.ContestBaseUpdateRequest;
-import com.wxc.oj.model.dto.contest.ContestSubmissionListDTO;
-import com.wxc.oj.model.dto.contest.ContestUpdateRequest;
+import com.wxc.oj.model.req.contest.ContestAddRequest;
+import com.wxc.oj.model.req.contest.ContestBaseUpdateRequest;
+import com.wxc.oj.model.req.contest.ContestSubmissionListDTO;
+import com.wxc.oj.model.req.contest.ContestUpdateRequest;
 import com.wxc.oj.model.po.Contest;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxc.oj.model.po.ContestProblem;
@@ -13,8 +13,6 @@ import com.wxc.oj.model.vo.contest.ContestProblemVO;
 import com.wxc.oj.model.vo.contest.ContestSubmissionVO;
 import com.wxc.oj.model.vo.contest.ContestVO;
 import com.wxc.oj.model.vo.problem.ListProblemVO;
-import com.wxc.oj.model.vo.problem.ProblemVO;
-import com.wxc.oj.model.queueMessage.ContestMessage;
 import com.wxc.oj.model.vo.rank.RankListVO;
 
 import java.util.List;

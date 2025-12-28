@@ -6,7 +6,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.constant.LanguageConfigs;
-import com.wxc.oj.constant.RabbitConstant;
+import com.wxc.oj.constant.RabbitMQConstant;
 import com.wxc.oj.enums.JudgeResultEnum;
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
@@ -22,11 +22,11 @@ import com.wxc.oj.model.judge.JudgeCaseResult;
 import com.wxc.oj.model.judge.JudgeConfig;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.openFeign.SandboxFeignClient;
-import com.wxc.oj.model.dto.sandbox.Cmd;
-import com.wxc.oj.model.dto.sandbox.Result;
-import com.wxc.oj.model.dto.sandbox.SandBoxRequest;
+import com.wxc.oj.model.req.sandbox.Cmd;
+import com.wxc.oj.model.req.sandbox.Result;
+import com.wxc.oj.model.req.sandbox.SandBoxRequest;
 import com.wxc.oj.enums.sandbox.SandBoxResponseStatus;
-import com.wxc.oj.model.dto.sandbox.LanguageConfig;
+import com.wxc.oj.model.req.sandbox.LanguageConfig;
 import com.wxc.oj.service.ProblemService;
 import com.wxc.oj.service.SubmissionService;
 import jakarta.annotation.Resource;
@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -94,7 +93,7 @@ public class JudgeServiceImpl implements JudgeService {
     @Value("${oj.data.path}")
     protected String dataPath;
 
-    @RabbitListener(queues = RabbitConstant.SUBMISSION_QUEUE, messageConverter = "jacksonConverter")
+    @RabbitListener(queues = RabbitMQConstant.SUBMISSION_QUEUE, messageConverter = "jacksonConverter")
     public void listenSubmission(SubmissionMessage message) throws IOException {
         Long id = message.getId();
         log.info("🔆🔆🔆🔆🔆接收到的id: " + id);

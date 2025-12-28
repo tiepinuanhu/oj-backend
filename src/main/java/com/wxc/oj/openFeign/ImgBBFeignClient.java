@@ -1,6 +1,6 @@
 package com.wxc.oj.openFeign;
 
-import com.wxc.oj.model.dto.user.ImgbbResponse;
+import com.wxc.oj.model.req.user.ImgbbResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

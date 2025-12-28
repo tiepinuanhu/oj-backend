@@ -1,6 +1,6 @@
 package com.wxc.oj.service;
 
-import com.wxc.oj.model.dto.problem.ProblemTag;
+import com.wxc.oj.model.req.problem.ProblemTag;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

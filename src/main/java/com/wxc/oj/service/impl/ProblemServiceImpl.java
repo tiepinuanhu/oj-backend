@@ -1,6 +1,5 @@
 package com.wxc.oj.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,10 +13,10 @@ import com.wxc.oj.enums.problem.ProblemLevel;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.exception.ThrowUtils;
 import com.wxc.oj.mapper.ProblemMapper;
-import com.wxc.oj.model.dto.problem.ProblemAddRequest;
-import com.wxc.oj.model.dto.problem.ProblemEditRequest;
-import com.wxc.oj.model.dto.problem.ProblemQueryRequest;
-import com.wxc.oj.model.dto.problem.ProblemTag;
+import com.wxc.oj.model.req.problem.ProblemAddRequest;
+import com.wxc.oj.model.req.problem.ProblemEditRequest;
+import com.wxc.oj.model.req.problem.ProblemQueryRequest;
+import com.wxc.oj.model.req.problem.ProblemTag;
 import com.wxc.oj.model.judge.JudgeConfig;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Tag;

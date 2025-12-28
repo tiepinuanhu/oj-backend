@@ -6,7 +6,7 @@ create database if not exists db_oj;
 -- 切换库
 use db_oj;
 
--- 用户表
+-- 用户表----------------------------------------------------------------------------------------------------------------
 create table user
 (
     id            bigint                                 not null comment '用户ID（雪花算法生成）'
@@ -27,7 +27,7 @@ create table user
 INSERT INTO db_oj.user (id, user_account, user_password, user_name, union_id, user_avatar, user_profile, user_role, create_time, update_time, is_deleted) VALUES (2002744707925106690, 'wxc', '5d789a466f021886cc60d6eebd109f26', 'momo', null, null, null, 1, '2025-12-21 14:15:23', '2025-12-21 14:15:59', 0);
 INSERT INTO db_oj.user (id, user_account, user_password, user_name, union_id, user_avatar, user_profile, user_role, create_time, update_time, is_deleted) VALUES (2004743556063502337, 'jack', '5d789a466f021886cc60d6eebd109f26', 'momo', null, null, null, 0, '2025-12-27 02:38:03', '2025-12-27 02:38:03', 0);
 
--- 题目表
+-- 题目表----------------------------------------------------------------------------------------------------------------
 create table problem
 (
     id            bigint auto_increment comment '主键自增'
@@ -329,7 +329,7 @@ my $c = $in->[0] + $in->[1];
 print "$c\\n";
 ```', 1, 5, 0, '{"timeLimit":1000,"memoryLimit":128}', 2002744707925106690, '2025-12-21 14:18:57', '2025-12-27 02:39:08', 0, 1);
 
--- 提交表
+-- 提交表----------------------------------------------------------------------------------------------------------------
 create table submission
 (
     id                 bigint                             not null comment '提交记录ID（雪花算法生成）'
@@ -347,7 +347,32 @@ create table submission
     KEY `idx_user_id` (`user_id`) COMMENT '按用户ID查询提交记录',
     KEY `idx_problem_id` (`problem_id`) COMMENT '按题目ID查询提交记录'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='代码提交记录表';
--- 比赛表
+INSERT INTO db_oj.submission (id, user_id, problem_id, source_code, submission_result, status, status_description, language, create_time, update_time, is_deleted) VALUES (2005107467779833858, 2004743556063502337, 1, '#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+int main()
+{
+    int a,b;
+    cin >> a >> b;
+    cout << a+b << endl;
+    return 0;
+}', '{"status":5,"statusDescription":"Accepted","score":100,"totalTime":25,"memoryUsed":1568768,"judgeCaseResults":[{"index":1,"input":"-114514 1919810\\n","output":"1805296\\n","ans":"1805296\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":9,"memoryUsed":1568768},{"index":2,"input":"-1919810 114514\\n","output":"-1805296\\n","ans":"-1805296\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":1,"memoryUsed":483328},{"index":3,"input":"349154568 180247698\\n","output":"529402266\\n","ans":"529402266\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":516096},{"index":4,"input":"-175136475 817059220\\n","output":"641922745\\n","ans":"641922745\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":0,"memoryUsed":516096},{"index":6,"input":"-255188006 -145225879\\n","output":"-400413885\\n","ans":"-400413885\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":3,"memoryUsed":335872},{"index":5,"input":"155692013 -501656708\\n","output":"-345964695\\n","ans":"-345964695\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":311296},{"index":7,"input":"-105074228 241408813\\n","output":"136334585\\n","ans":"136334585\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":516096},{"index":8,"input":"-104387541 557196859\\n","output":"452809318\\n","ans":"452809318\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":3,"memoryUsed":491520},{"index":9,"input":"549325784 -690933930\\n","output":"-141608146\\n","ans":"-141608146\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":516096},{"index":10,"input":"937032200 584941400\\n","output":"1521973600\\n","ans":"1521973600\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":1,"memoryUsed":483328}]}', 5, 'Accepted', 'cpp', '2025-12-28 02:44:07', '2025-12-28 02:44:07', 0);
+INSERT INTO db_oj.submission (id, user_id, problem_id, source_code, submission_result, status, status_description, language, create_time, update_time, is_deleted) VALUES (2005108185530224642, 2004743556063502337, 1, '#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+int main()
+{
+    int a,b;
+    cin >> a >> b;
+    cout << a+b << endl;
+    return 0;
+}', '{"status":5,"statusDescription":"Accepted","score":100,"totalTime":19,"memoryUsed":573440,"judgeCaseResults":[{"index":1,"input":"-114514 1919810\\n","output":"1805296\\n","ans":"1805296\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":573440},{"index":2,"input":"-1919810 114514\\n","output":"-1805296\\n","ans":"-1805296\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":3,"memoryUsed":528384},{"index":3,"input":"349154568 180247698\\n","output":"529402266\\n","ans":"529402266\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":3,"memoryUsed":520192},{"index":4,"input":"-175136475 817059220\\n","output":"641922745\\n","ans":"641922745\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":544768},{"index":6,"input":"-255188006 -145225879\\n","output":"-400413885\\n","ans":"-400413885\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":516096},{"index":5,"input":"155692013 -501656708\\n","output":"-345964695\\n","ans":"-345964695\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":1,"memoryUsed":487424},{"index":7,"input":"-105074228 241408813\\n","output":"136334585\\n","ans":"136334585\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":1,"memoryUsed":491520},{"index":8,"input":"-104387541 557196859\\n","output":"452809318\\n","ans":"452809318\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":0,"memoryUsed":516096},{"index":9,"input":"549325784 -690933930\\n","output":"-141608146\\n","ans":"-141608146\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":2,"memoryUsed":516096},{"index":10,"input":"937032200 584941400\\n","output":"1521973600\\n","ans":"1521973600\\n","judgeResult":"Accepted","gainScore":10,"fullScore":10,"timeCost":3,"memoryUsed":516096}]}', 5, 'Accepted', 'cpp', '2025-12-28 02:46:58', '2025-12-28 02:46:58', 0);
+
+-- 比赛表----------------------------------------------------------------------------------------------------------------
 CREATE TABLE `contest` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键自增',
     `title` varchar(255) NOT NULL COMMENT '比赛标题',
@@ -367,7 +392,7 @@ CREATE TABLE `contest` (
     KEY `idx_is_public` (`is_public`) COMMENT '筛选公开/私有比赛',
     KEY `idx_start_time` (`start_time`) COMMENT '按开始时间排序查询比赛'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='比赛表（存储编程比赛的基本信息）';
--- 比赛题目表
+-- 比赛题目表----------------------------------------------------------------------------------------------------------------
 CREATE TABLE `contest_problem` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键自增',
     `contest_id` bigint NOT NULL COMMENT '比赛ID（关联比赛表）',
@@ -383,7 +408,7 @@ CREATE TABLE `contest_problem` (
     KEY `idx_contest_id` (`contest_id`) COMMENT '按比赛ID查询包含的题目',
     KEY `idx_problem_id` (`problem_id`) COMMENT '按题目ID查询所属比赛'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='比赛与题目关联表（记录比赛包含的题目及相关配置）';
--- 比赛报名表
+-- 比赛报名表----------------------------------------------------------------------------------------------------------------
 CREATE TABLE `contest_registration` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键自增',
     `user_id` bigint NOT NULL COMMENT '用户ID（关联用户表，报名者）',
@@ -396,7 +421,7 @@ CREATE TABLE `contest_registration` (
     KEY `idx_user_id` (`user_id`) COMMENT '按用户ID查询其报名的所有比赛',
     KEY `idx_contest_id` (`contest_id`) COMMENT '按比赛ID查询所有报名用户'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='比赛报名表（记录用户报名比赛的信息）';
--- 比赛提交表
+-- 比赛提交表----------------------------------------------------------------------------------------------------------------
 CREATE TABLE `contest_submission` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id主键自增',
     `contest_id` bigint NOT NULL COMMENT '比赛ID',
@@ -419,7 +444,7 @@ CREATE TABLE `contest_submission` (
     KEY `idx_problem_id` (`problem_id`) COMMENT '按题目ID查询提交记录',
     KEY `idx_submission_time` (`submission_time`) COMMENT '按提交时间排序查询'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='比赛提交记录表';
--- 题目标签表
+-- 题目标签表----------------------------------------------------------------------------------------------------------------
 CREATE TABLE `tag` (
    `id` int NOT NULL AUTO_INCREMENT COMMENT '主键自增',
    `name` varchar(100) NOT NULL COMMENT '标签名称',
@@ -436,7 +461,7 @@ INSERT INTO db_oj.tag (id, name, color) VALUES (7, '贪心', '#008080');
 INSERT INTO db_oj.tag (id, name, color) VALUES (8, '动态规划', '#D2691E');
 INSERT INTO db_oj.tag (id, name, color) VALUES (9, '搜索', '#DAA520');
 
--- 题目标签和题目的中间表
+-- 题目标签和题目的中间表----------------------------------------------------------------------------------------------------------------
 CREATE TABLE `problem_tag` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键自增',
     `problem_id` bigint NOT NULL COMMENT '题目ID（关联problem表id）',

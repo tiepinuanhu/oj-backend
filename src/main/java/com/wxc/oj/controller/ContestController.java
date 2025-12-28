@@ -10,7 +10,7 @@ import com.wxc.oj.common.PageRequest;
 import com.wxc.oj.common.ResultUtils;
 import com.wxc.oj.enums.contest.ContestStatusEnum;
 import com.wxc.oj.exception.BusinessException;
-import com.wxc.oj.model.dto.contest.*;
+import com.wxc.oj.model.req.contest.*;
 import com.wxc.oj.model.po.Contest;
 import com.wxc.oj.model.po.ContestProblem;
 import com.wxc.oj.model.po.Problem;
@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.wxc.oj.enums.UserRoleEnum.ADMIN;

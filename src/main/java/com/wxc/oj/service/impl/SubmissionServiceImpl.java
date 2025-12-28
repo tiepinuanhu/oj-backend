@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxc.oj.common.ErrorCode;
-import com.wxc.oj.constant.RabbitConstant;
+import com.wxc.oj.constant.RabbitMQConstant;
 import com.wxc.oj.constant.RedisConstant;
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
@@ -15,8 +15,8 @@ import com.wxc.oj.mapper.SubmissionMapper;
 import com.wxc.oj.model.queueMessage.SubmissionStatusMessage;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.model.queueMessage.SubmissionMessage;
-import com.wxc.oj.model.dto.submission.SubmissionAddRequest;
-import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
+import com.wxc.oj.model.req.submission.SubmissionAddRequest;
+import com.wxc.oj.model.req.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Submission;
 import com.wxc.oj.model.po.User;
@@ -148,7 +148,7 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
      * 根据提交结果修改用户AC统计信息
      * @param submissionStatusMessage
      */
-    @RabbitListener(queues = RabbitConstant.SUBMISSION_STATUS_AC_QUEUE,
+    @RabbitListener(queues = RabbitMQConstant.SUBMISSION_STATUS_AC_QUEUE,
             messageConverter = "jacksonConverter",
             ackMode = "AUTO")
     public void changeRank(SubmissionStatusMessage submissionStatusMessage) {
@@ -182,7 +182,7 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
      * 统计信息包括：题目的提交数和通过数，用户通过的题目和AC的数量
      * 会有并发问题吧：
      */
-    @RabbitListener(queues = RabbitConstant.SUBMISSION_STATUS_QUEUE,
+    @RabbitListener(queues = RabbitMQConstant.SUBMISSION_STATUS_PROBLEM_QUEUE,
             messageConverter = "jacksonConverter")
     public void changeProblem(SubmissionStatusMessage submissionStatusMessage) {
         log.info("收到消息");
@@ -279,8 +279,8 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
         if (id != null) {
             SubmissionMessage submissionMessage = new SubmissionMessage();
             submissionMessage.setId(id);
-            rabbitTemplate.convertAndSend(RabbitConstant.SUBMISSION_EXCHANGE,
-                    RabbitConstant.SUBMISSION_ROUTING_KEY,
+            rabbitTemplate.convertAndSend(RabbitMQConstant.SUBMISSION_EXCHANGE,
+                    RabbitMQConstant.SUBMISSION_ROUTING_KEY,
                     submissionMessage);
             submissionResult.setStatus(SubmissionStatusEnum.PENDING.getStatus());
             submissionResult.setStatusDescription(SubmissionStatusEnum.PENDING.getDescription());

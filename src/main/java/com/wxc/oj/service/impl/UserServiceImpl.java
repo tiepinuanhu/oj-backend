@@ -1,7 +1,6 @@
 package com.wxc.oj.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.UUID;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -11,8 +10,7 @@ import com.wxc.oj.constant.CommonConstant;
 import com.wxc.oj.constant.RedisConstant;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.mapper.UserMapper;
-import com.wxc.oj.model.dto.user.ImgbbResponse;
-import com.wxc.oj.model.dto.user.UserQueryRequest;
+import com.wxc.oj.model.req.user.UserQueryRequest;
 import com.wxc.oj.enums.UserRoleEnum;
 import com.wxc.oj.model.po.User;
 import com.wxc.oj.model.vo.login.LoginVO;
@@ -24,17 +22,12 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 

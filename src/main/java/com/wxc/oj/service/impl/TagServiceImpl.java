@@ -2,7 +2,11 @@ package com.wxc.oj.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wxc.oj.cache.TagCache;
+import com.wxc.oj.mapper.ProblemTagMapper;
 import com.wxc.oj.model.po.Tag;
+import com.wxc.oj.model.req.problem.ProblemTag;
+import com.wxc.oj.service.ProblemTagService;
 import com.wxc.oj.service.TagService;
 import com.wxc.oj.mapper.TagMapper;
 import jakarta.annotation.Resource;
@@ -22,39 +26,25 @@ TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     implements TagService {
 
     @Resource
-    private TagMapper tagMapper;
-    public List<Tag> listTagsByProblemId(Long problemId) {
-        List<Tag> tags = tagMapper.listTagsByProblemId(problemId);
-        return tags;
-    }
-
+    private ProblemTagMapper problemTagMapper;
 
     /**
-     * 通过tags的名称去查
-     * ["二分", "BFS", "DFS"]
-     * @param tags
-     * @return 返回题目的id
+     * 使用本地缓存
      */
-    public List<Integer> getTagIdsByTagsName(List<String> tags) {
-        LambdaQueryWrapper<Tag> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.in(!tags.isEmpty(), Tag::getName, tags);
-        List<Tag> tags1 = tagMapper.selectList(lambdaQueryWrapper);
-        List<Integer> collect = tags1.stream().map(Tag::getId).collect(Collectors.toList());
-        return collect;
-    }
+    @Resource
+    private TagCache tagCache;
 
-
-    public List<Long> getProblemIdsByTagIds(List<Integer> tagIds) {
-        List<Long> problemIdsByTagIds = tagMapper.getProblemIdsByTagIds(tagIds);
-        return problemIdsByTagIds;
-    }
-
-
-    public List<Long> getProblemIdsByTagNames(List<String> tagNames) {
-        List<Integer> tagIdsByTagsName = this.getTagIdsByTagsName(tagNames);
-        List<Long> problemIds = this.getProblemIdsByTagIds(tagIdsByTagsName);
-//        List<Long> problemIds = tagMapper.getProblemIdsByTagNames(tagNames);
-        return problemIds;
+    public List<Tag> listTagsByProblemId(Long problemId) {
+        LambdaQueryWrapper<ProblemTag> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ProblemTag::getProblemId, problemId)
+                .select(ProblemTag::getTagId);
+        // 在problem_tag表中查到tag_ids
+        List<ProblemTag> problemTags = problemTagMapper.selectList(queryWrapper);
+        // 通过tag_ids去本地缓存TagCache中查tag
+        List<Tag> tags = problemTags.stream()
+                .map(problemTag -> tagCache.getById(problemTag.getTagId()))
+                .collect(Collectors.toList());
+        return tags;
     }
 }
 

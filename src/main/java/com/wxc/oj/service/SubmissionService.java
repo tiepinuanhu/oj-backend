@@ -1,8 +1,8 @@
 package com.wxc.oj.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wxc.oj.model.dto.submission.SubmissionAddRequest;
-import com.wxc.oj.model.dto.submission.SubmissionQueryDTO;
+import com.wxc.oj.model.req.submission.SubmissionAddRequest;
+import com.wxc.oj.model.req.submission.SubmissionQueryDTO;
 import com.wxc.oj.model.po.Submission;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxc.oj.model.vo.submission.ListSubmissionVO;

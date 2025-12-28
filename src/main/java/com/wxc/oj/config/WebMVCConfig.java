@@ -31,6 +31,7 @@ public class WebMVCConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/register")
                 .excludePathPatterns("/api/*")
+                .excludePathPatterns("/api/problems")
                 .excludePathPatterns("/swagger-ui/**")
                 .excludePathPatterns("/v3/**");
     }

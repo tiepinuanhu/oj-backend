@@ -1,7 +1,7 @@
 package com.wxc.oj.judger;
 
 import com.wxc.oj.common.ErrorCode;
-import com.wxc.oj.constant.RabbitConstant;
+import com.wxc.oj.constant.RabbitMQConstant;
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.model.po.Problem;
@@ -27,14 +27,19 @@ public class JudgeServiceImpl implements JudgeService {
     @Resource
     private ProblemService problemService;
 
-    @RabbitListener(queues = RabbitConstant.SUBMISSION_QUEUE, messageConverter = "jacksonConverter", concurrency = "20")
+    /**
+     * concurrency = "20": 同一个 Listener 最多会同时启动 20 个消费者线程来并行消费该队列中的消息。
+     * @param message
+     * @throws IOException
+     */
+    @RabbitListener(queues = RabbitMQConstant.SUBMISSION_QUEUE, messageConverter = "jacksonConverter", concurrency = "20")
     public void listenSubmission(SubmissionMessage message) throws IOException {
         Long submissionId = message.getId();
         doJudge(submissionId);
     }
 
     @Override
-    public void doJudge(Long submissionId) throws IOException {
+    public void doJudge(Long submissionId) {
         // 1. 获取提交和题目信息
         Submission submission = submissionService.getById(submissionId);
         Problem problem = problemService.getById(submission.getProblemId());

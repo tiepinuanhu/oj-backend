@@ -7,12 +7,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.common.PageRequest;
+import com.wxc.oj.constant.RabbitMQConstant;
 import com.wxc.oj.enums.contest.ContestStatusEnum;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.mapper.ContestMapper;
 import com.wxc.oj.mapper.ContestProblemMapper;
 import com.wxc.oj.mapper.ContestRegistrationMapper;
-import com.wxc.oj.model.dto.contest.*;
+import com.wxc.oj.model.req.contest.*;
 import com.wxc.oj.model.po.*;
 import com.wxc.oj.model.vo.*;
 import com.wxc.oj.model.queueMessage.ContestMessage;
@@ -79,10 +80,133 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
     @Resource
     ContestSubmissionService contestSubmissionService;
 
+
+
+
     /**
      * 比赛最大延迟时间，单位为分钟，21天
      */
     private static final Integer MAX_DELAY_TIME = 30_240;
+
+// ======================================================================================================================
+    /**
+     * contest在状态0时的操作:
+     * 1. 保存contest到数据库
+     * @return
+     */
+    public void contestInStatus_0(ContestAddRequest request) {
+        this.validateContest(request);
+
+        Contest contest = new Contest();
+        copyProperties(request, contest);
+        contest.setStatus(ContestStatusEnum.NOT_STARTED.getCode());
+
+        contest.setHostId(request.getHostId());
+
+        // 保存contest到数据库
+        boolean save = this.save(contest);
+        if (!save) {
+            throw new BusinessException(400, "比赛发布失败");
+        }
+        Long contestId = contest.getId();
+        List<ContestProblemDTO> problems = request.getProblems();
+        // 比赛的题目只能是非公开的
+        for (var problem : problems) {
+            Integer problemIndex = problem.getProblemIndex();
+            Long problemId = problem.getProblemId();
+            Integer fullScore = problem.getFullScore();
+
+            ContestProblem contestProblem = new ContestProblem();
+            Problem byId = problemService.getById(problemId);
+            Integer isPublic = byId.getIsPublic();
+            if (isPublic == 1) {
+                continue;
+            }
+            contestProblem.setFullScore(fullScore);
+            contestProblem.setContestId(contestId);
+            contestProblem.setProblemId(problemId);
+            contestProblem.setPindex(problemIndex);
+            contestProblemService.save(contestProblem);
+        }
+
+
+
+
+        Date startTime = request.getStartTime();
+        Date currentDate = new Date();
+        long timeDifferenceInMillis = startTime.getTime() - currentDate.getTime();
+        log.info("距离"+timeDifferenceInMillis+"ms比赛就业开始");
+        // 创建消息, 保存contest ID
+        ContestMessage contestMessage = new ContestMessage();
+        contestMessage.setId(contest.getId());
+        // 发送消息到延迟交换机, 转发到timePublish队列
+        rabbitTemplate.convertAndSend(RabbitMQConstant.CONTEST_TIME_EXCHANGE,
+                RabbitMQConstant.CONTEST_PUBLISH_KEY, contestMessage,
+                message -> {
+                    MessageProperties properties = message.getMessageProperties();
+                    properties.setDelay(Integer.valueOf((int)timeDifferenceInMillis));
+                    return message;
+                });
+        log.info("比赛已经发布😊😊😊😊😊");
+    }
+
+
+    /**
+     * contest在状态1的操作
+     * 从timePublish队列收到消息后, 再次发送一个消息到延迟交换机
+     * 延迟duration后转发到timeFinish队列进行结束处理
+     * @param
+     * @return
+     */
+    @RabbitListener(queues = RabbitMQConstant.CONTEST_PUBLISH_QUEUE, messageConverter = "jacksonConverter")
+    public void contestInStatus_1(ContestMessage contestMessage) {
+        Long id = contestMessage.getId();
+        Contest contest = this.getById(id);
+        contest.setStatus(Integer.valueOf(1));
+        boolean updated = this.updateById(contest);
+        if (!updated) {
+            throw new RuntimeException("更新失败");
+        }
+        Integer duration = contest.getDuration() * 1000;
+        ContestMessage contestMessage2 = new ContestMessage();
+        contestMessage2.setId(contest.getId());
+        // todo: 将当前contest下的所有题目缓存到redis
+        LambdaQueryWrapper<ContestProblem> problemQueryWrapper = new LambdaQueryWrapper<>();
+        problemQueryWrapper.eq(ContestProblem::getContestId, id);
+        List<ContestProblem> contestProblems = contestProblemMapper.selectList(problemQueryWrapper);
+        for (ContestProblem contestProblem : contestProblems) {
+            log.info("contestProblem:"+contestProblem);
+            Long problemId = contestProblem.getProblemId();
+            Problem problem = problemService.getById(problemId);
+            redisTemplate.opsForValue().set("problem:"+problemId, problem);
+        }
+        rabbitTemplate.convertAndSend(RabbitMQConstant.CONTEST_TIME_EXCHANGE,
+                RabbitMQConstant.CONTEST_FINISH_KEY,
+                contestMessage2, m -> {
+                    m.getMessageProperties().setDelay(duration);
+                    return m;
+                });
+        log.info("比赛正在进行🤷‍♀️🤷‍♀️🤷‍♀️🤷‍♀️🤷‍♀️");
+    }
+
+    /**
+     * 从timeFinish队列收到消息
+     * 修改消息体中指定的id对应的contest的状态为2
+     * @param
+     * @return
+     */
+    @RabbitListener(queues = RabbitMQConstant.CONTEST_FINISH_QUEUE, messageConverter = "jacksonConverter")
+    public void contestInStatus_2(ContestMessage contestMessage) {
+        Long id = contestMessage.getId();
+        Contest contest = this.getById(id);
+        contest.setStatus(Integer.valueOf(2));
+        boolean save = this.updateById(contest);
+        if (!save) {
+            throw new RuntimeException("更新失败");
+        }
+        log.info("比赛结束💕💕💕");
+    }
+// ======================================================================================================================
 
 //    private void validateContestBaseInfo(ContestBaseUpdateRequest request) {
 //        Date startTime = request.getStartTime();
@@ -241,120 +365,7 @@ public class ContestServiceImpl extends ServiceImpl<ContestMapper, Contest>
     }
 
 
-    /**
-     * contest在状态0时的操作:
-     * 1. 保存contest到数据库
-     *
-     * @return
-     */
-    public void contestInStatus_0(ContestAddRequest request) {
-        this.validateContest(request);
 
-        Contest contest = new Contest();
-        copyProperties(request, contest);
-        contest.setStatus(ContestStatusEnum.NOT_STARTED.getCode());
-
-        contest.setHostId(request.getHostId());
-
-        // 保存contest到数据库
-        boolean save = this.save(contest);
-        if (!save) {
-            throw new BusinessException(400, "比赛发布失败");
-        }
-        Long contestId = contest.getId();
-        List<ContestProblemDTO> problems = request.getProblems();
-        // 比赛的题目只能是非公开的
-        for (var problem : problems) {
-            Integer problemIndex = problem.getProblemIndex();
-            Long problemId = problem.getProblemId();
-            Integer fullScore = problem.getFullScore();
-
-            ContestProblem contestProblem = new ContestProblem();
-            Problem byId = problemService.getById(problemId);
-            Integer isPublic = byId.getIsPublic();
-            if (isPublic == 1) {
-                continue;
-            }
-            contestProblem.setFullScore(fullScore);
-            contestProblem.setContestId(contestId);
-            contestProblem.setProblemId(problemId);
-            contestProblem.setPindex(problemIndex);
-            contestProblemService.save(contestProblem);
-        }
-
-
-
-
-        Date startTime = request.getStartTime();
-        Date currentDate = new Date();
-        long timeDifferenceInMillis = startTime.getTime() - currentDate.getTime();
-        log.info("距离"+timeDifferenceInMillis+"ms比赛就业开始");
-        // 创建消息, 保存contest ID
-        ContestMessage contestMessage = new ContestMessage();
-        contestMessage.setId(contest.getId());
-        // 发送消息到延迟交换机, 转发到timePublish队列
-        rabbitTemplate.convertAndSend("delayExchange", "timePublish", contestMessage,message -> {
-            MessageProperties properties = message.getMessageProperties();
-            properties.setDelay(Integer.valueOf((int)timeDifferenceInMillis));
-            return message;
-        });
-        log.info("比赛已经发布😊😊😊😊😊");
-    }
-
-
-    /**
-     * contest在状态1的操作
-     * 从timePublish队列收到消息后, 再次发送一个消息到延迟交换机
-     * 延迟duration后转发到timeFinish队列进行结束处理
-     * @param
-     * @return
-     */
-    @RabbitListener(queues = "timePublish", messageConverter = "jacksonConverter")
-    public void contestInStatus_1(ContestMessage contestMessage) {
-        Long id = contestMessage.getId();
-        Contest contest = this.getById(id);
-        contest.setStatus(Integer.valueOf(1));
-        boolean updated = this.updateById(contest);
-        if (!updated) {
-            throw new RuntimeException("更新失败");
-        }
-        Integer duration = contest.getDuration() * 1000;
-        ContestMessage contestMessage2 = new ContestMessage();
-        contestMessage2.setId(contest.getId());
-        // todo: 将当前contest下的所有题目缓存到redis
-        LambdaQueryWrapper<ContestProblem> problemQueryWrapper = new LambdaQueryWrapper<>();
-        problemQueryWrapper.eq(ContestProblem::getContestId, id);
-        List<ContestProblem> contestProblems = contestProblemMapper.selectList(problemQueryWrapper);
-        for (ContestProblem contestProblem : contestProblems) {
-            log.info("contestProblem:"+contestProblem);
-            Long problemId = contestProblem.getProblemId();
-            Problem problem = problemService.getById(problemId);
-            redisTemplate.opsForValue().set("problem:"+problemId, problem);
-        }
-        rabbitTemplate.convertAndSend("delayExchange", "timeFinish", contestMessage2, m -> {
-            m.getMessageProperties().setDelay(duration);
-            return m;
-        });
-        log.info("比赛正在进行🤷‍♀️🤷‍♀️🤷‍♀️🤷‍♀️🤷‍♀️");
-    }
-
-    /**
-     * 从timeFinish队列收到消息
-     * 修改消息体中指定的id对应的contest的状态为2
-     * @param
-     * @return
-     */
-    @RabbitListener(queues = "timeFinish", messageConverter = "jacksonConverter")
-    public void contestInStatus_2(ContestMessage contestMessage) {
-        Long id = contestMessage.getId();
-        Contest contest = this.getById(id);
-        contest.setStatus(Integer.valueOf(2));
-        boolean save = this.updateById(contest);
-        if (!save) {
-            throw new RuntimeException("更新失败");
-        }
-        log.info("比赛结束✔✔✔✔");
-    }
 
 
 

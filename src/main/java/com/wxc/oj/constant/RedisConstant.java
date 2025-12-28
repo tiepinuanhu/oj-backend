@@ -26,4 +26,6 @@ public class RedisConstant {
     public static final String AC_RANK_KEY = "oj:rank:daily:ac:"; // oj:rank:daily:ac:{yyyyMMdd}
 
 
+
+    public static final String CONTEST_RANK_KEY = "oj:rank:contest:"; // oj:rank:contest:{contestId}
 }

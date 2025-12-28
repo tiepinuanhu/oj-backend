@@ -2,8 +2,8 @@ package com.wxc.oj.judger.normal.service;
 
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Submission;
-import com.wxc.oj.model.dto.sandbox.Result;
-import com.wxc.oj.model.dto.sandbox.LanguageConfig;
+import com.wxc.oj.model.req.sandbox.Result;
+import com.wxc.oj.model.req.sandbox.LanguageConfig;
 
 import java.io.IOException;
 

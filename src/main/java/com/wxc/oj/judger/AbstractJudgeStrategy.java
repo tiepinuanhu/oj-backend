@@ -5,17 +5,17 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.wxc.oj.common.ErrorCode;
-import com.wxc.oj.constant.RabbitConstant;
+import com.wxc.oj.constant.RabbitMQConstant;
 import com.wxc.oj.enums.JudgeResultEnum;
 import com.wxc.oj.enums.sandbox.SandBoxResponseStatus;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.judger.model.TestCase;
 import com.wxc.oj.judger.model.TestCases;
-import com.wxc.oj.model.dto.sandbox.Cmd;
-import com.wxc.oj.model.dto.sandbox.LanguageConfig;
-import com.wxc.oj.model.dto.sandbox.Result;
-import com.wxc.oj.model.dto.sandbox.SandBoxRequest;
+import com.wxc.oj.model.req.sandbox.Cmd;
+import com.wxc.oj.model.req.sandbox.LanguageConfig;
+import com.wxc.oj.model.req.sandbox.Result;
+import com.wxc.oj.model.req.sandbox.SandBoxRequest;
 import com.wxc.oj.model.judge.JudgeCaseResult;
 import com.wxc.oj.model.judge.JudgeConfig;
 import com.wxc.oj.model.po.Problem;
@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.wxc.oj.constant.RabbitConstant.SUBMISSION_STATUS_TOPIC;
+import static com.wxc.oj.constant.RabbitMQConstant.SUBMISSION_STATUS_TOPIC;
 
 /**
  * 判题模板抽象类（封装通用判题流程）
@@ -288,7 +288,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
                     .status(submissionResult.getStatus()).build();
             // 发送消息异步更新题目统计数据，和用户排行榜
             rabbitTemplate.convertAndSend(
-                    RabbitConstant.SUBMISSION_STATUS_EXCHANGE,
+                    RabbitMQConstant.SUBMISSION_STATUS_EXCHANGE,
                     SUBMISSION_STATUS_TOPIC,
                     submissionStatusMessage);
             log.info("💕💕💕消息已经发送");

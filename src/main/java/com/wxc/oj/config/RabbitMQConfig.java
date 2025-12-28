@@ -1,6 +1,6 @@
 package com.wxc.oj.config;
 
-import com.wxc.oj.constant.RabbitConstant;
+import com.wxc.oj.constant.RabbitMQConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -19,36 +19,36 @@ public class RabbitMQConfig {
 
 
 
-    @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-
-        
-
-        // 开启 mandatory，配合 ReturnCallback
-        rabbitTemplate.setMandatory(true);
-
-        // Confirm 回调（生产者确认）
-        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
-            if (!ack) {
-                // 1. 记录日志
-                log.error("消息发送失败, correlationData={}, cause={}",
-                        correlationData, cause);
-
-                // 2. 可选：重试 / 落库 / 告警
-            }
-        });
-
-        // Return 回调（路由失败）
-        rabbitTemplate.setReturnsCallback(returned -> {
-            log.error("消息路由失败: exchange={}, routingKey={}, msg={}",
-                    returned.getExchange(),
-                    returned.getRoutingKey(),
-                    returned.getMessage());
-        });
-
-        return rabbitTemplate;
-    }
+//    @Bean
+//    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+//        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+//
+//
+//
+//        // 开启 mandatory，配合 ReturnCallback
+//        rabbitTemplate.setMandatory(true);
+//
+//        // Confirm 回调（生产者确认）
+//        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+//            if (!ack) {
+//                // 1. 记录日志
+//                log.error("消息发送失败, correlationData={}, cause={}",
+//                        correlationData, cause);
+//
+//                // 2. 可选：重试 / 落库 / 告警
+//            }
+//        });
+//
+//        // Return 回调（路由失败）
+//        rabbitTemplate.setReturnsCallback(returned -> {
+//            log.error("消息路由失败: exchange={}, routingKey={}, msg={}",
+//                    returned.getExchange(),
+//                    returned.getRoutingKey(),
+//                    returned.getMessage());
+//        });
+//
+//        return rabbitTemplate;
+//    }
 
 // =================================================统计提交信息：1个交换机，2个队列，使用同一个rk=================================================================
     /**
@@ -65,18 +65,18 @@ public class RabbitMQConfig {
 //                .topicExchange(RabbitConstant.SUBMISSION_STATUS_EXCHANGE)
 //                .durable(true)
 //                .build();
-        return new TopicExchange(RabbitConstant.SUBMISSION_STATUS_EXCHANGE, true, false);
+        return new TopicExchange(RabbitMQConstant.SUBMISSION_STATUS_EXCHANGE, true, false);
     }
 
     @Bean
     public Queue acceptedRankQueue() {
         return QueueBuilder
-            .durable(RabbitConstant.SUBMISSION_STATUS_AC_QUEUE).build();
+            .durable(RabbitMQConstant.SUBMISSION_STATUS_AC_QUEUE).build();
     }
 
     @Bean
     public Queue submissionProblemQueue() {
-        return QueueBuilder.durable(RabbitConstant.SUBMISSION_STATUS_PROBLEM_QUEUE).build();
+        return QueueBuilder.durable(RabbitMQConstant.SUBMISSION_STATUS_PROBLEM_QUEUE).build();
     }
 
 
@@ -85,7 +85,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(acceptedRankQueue())
                 .to(submissionStatusExchange())
-                .with(RabbitConstant.SUBMISSION_STATUS_TOPIC);
+                .with(RabbitMQConstant.SUBMISSION_STATUS_TOPIC);
     }
 
     @Bean
@@ -93,7 +93,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(submissionProblemQueue())
                 .to(submissionStatusExchange())
-                .with(RabbitConstant.SUBMISSION_STATUS_TOPIC);
+                .with(RabbitMQConstant.SUBMISSION_STATUS_TOPIC);
     }
     // =================================================submission=================================================================
     /**
@@ -102,7 +102,7 @@ public class RabbitMQConfig {
     @Bean
     public Exchange submissionExchange(){
         return ExchangeBuilder
-                .directExchange(RabbitConstant.SUBMISSION_EXCHANGE)
+                .directExchange(RabbitMQConstant.SUBMISSION_EXCHANGE)
                 .build();
     }
 
@@ -113,7 +113,7 @@ public class RabbitMQConfig {
     @Bean     //定义消息队列
     public Queue submissionQueue(){
         return QueueBuilder
-                .durable(RabbitConstant.SUBMISSION_QUEUE)   //非持久化类型
+                .durable(RabbitMQConstant.SUBMISSION_QUEUE)   //非持久化类型
                 .build();
     }
 
@@ -130,7 +130,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(queue)   //绑定队列
                 .to(exchange)  //到交换机
-                .with(RabbitConstant.SUBMISSION_ROUTING_KEY)   //使用自定义的routingKey
+                .with(RabbitMQConstant.SUBMISSION_ROUTING_KEY)   //使用自定义的routingKey
                 .noargs();
     }
 // ===============================================比赛期间的提交===================================================================
@@ -182,7 +182,7 @@ public class RabbitMQConfig {
     public CustomExchange delayExchange() {
         Map<String, Object> args = new HashMap<>();
         args.put("x-delayed-type", "direct");
-        return new CustomExchange(RabbitConstant.CONTEST_TIME_EXCHANGE,
+        return new CustomExchange(RabbitMQConstant.CONTEST_TIME_EXCHANGE,
                 "x-delayed-message", true, false, args);
     }
 
@@ -192,7 +192,7 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue delayQueue1() {
-        return QueueBuilder.durable(RabbitConstant.CONTEST_PUBLISH_QUEUE).build();
+        return QueueBuilder.durable(RabbitMQConstant.CONTEST_PUBLISH_QUEUE).build();
     }
 
     /**
@@ -202,7 +202,7 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue delayQueue2() {
-        return QueueBuilder.durable(RabbitConstant.CONTEST_FINISH_QUEUE).build();
+        return QueueBuilder.durable(RabbitMQConstant.CONTEST_FINISH_QUEUE).build();
     }
 
 
@@ -214,24 +214,37 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(delayQueue1())
                 .to(delayExchange())
-                .with(RabbitConstant.CONTEST_PUBLISH_KEY).noargs();
+                .with(RabbitMQConstant.CONTEST_PUBLISH_KEY).noargs();
     }
     @Bean
     public Binding delayBinding2() {
         return BindingBuilder
                 .bind(delayQueue2())
                 .to(delayExchange())
-                .with(RabbitConstant.CONTEST_FINISH_KEY).noargs();
+                .with(RabbitMQConstant.CONTEST_FINISH_KEY).noargs();
     }
 // ====================================================================================================================
+
+//    @Bean
+//    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+//        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+//
+//        rabbitTemplate.setMessageConverter(
+//                new Jackson2JsonMessageConverter()
+//        );
+//
+//        // mandatory + callback 略（你已有）
+//        return rabbitTemplate;
+//    }
+
     /**
      * 创建一个用于JSON转换的Bean
      * 用于将对象转换为JSON格式的消息
      * 和将JSON格式的消息转换为对象
      * @return
      */
-    @Bean("jacksonConverter")
-    public Jackson2JsonMessageConverter converter(){
+    @Bean
+    public Jackson2JsonMessageConverter jacksonConverter(){
         return new Jackson2JsonMessageConverter();
     }
 }

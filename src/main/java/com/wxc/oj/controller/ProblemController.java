@@ -9,7 +9,7 @@ import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.common.ResultUtils;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.exception.ThrowUtils;
-import com.wxc.oj.model.dto.problem.*;
+import com.wxc.oj.model.req.problem.*;
 import com.wxc.oj.model.po.ContestProblem;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.User;

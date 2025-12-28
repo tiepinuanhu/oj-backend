@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wxc.oj.mapper.ProblemTagMapper">
 
-    <resultMap id="BaseResultMap" type="com.wxc.oj.model.dto.problem.ProblemTag">
+    <resultMap id="BaseResultMap" type="com.wxc.oj.model.req.problem.ProblemTag">
             <id property="problemId" column="problem_id" jdbcType="BIGINT"/>
             <id property="tagId" column="tag_id" jdbcType="INTEGER"/>
     </resultMap>
