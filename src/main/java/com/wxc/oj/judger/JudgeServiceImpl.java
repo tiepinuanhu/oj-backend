@@ -2,6 +2,7 @@ package com.wxc.oj.judger;
 
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.constant.RabbitMQConstant;
+import com.wxc.oj.enums.LanguageConfigEnum;
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.model.po.Problem;
@@ -30,10 +31,9 @@ public class JudgeServiceImpl implements JudgeService {
     /**
      * concurrency = "20": 同一个 Listener 最多会同时启动 20 个消费者线程来并行消费该队列中的消息。
      * @param message
-     * @throws IOException
      */
     @RabbitListener(queues = RabbitMQConstant.SUBMISSION_QUEUE, messageConverter = "jacksonConverter", concurrency = "20")
-    public void listenSubmission(SubmissionMessage message) throws IOException {
+    public void listenSubmission(SubmissionMessage message) {
         Long submissionId = message.getId();
         doJudge(submissionId);
     }
@@ -42,19 +42,19 @@ public class JudgeServiceImpl implements JudgeService {
     public void doJudge(Long submissionId) {
         // 1. 获取提交和题目信息
         Submission submission = submissionService.getById(submissionId);
+        if (submission == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
         Problem problem = problemService.getById(submission.getProblemId());
-        if (submission == null || problem == null) {
+        if (problem == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
 
         String language = submission.getLanguage();
-        SubmissionLanguageEnum languageEnum = SubmissionLanguageEnum.from(language);
+        LanguageConfigEnum languageEnum = LanguageConfigEnum.valueOf(language);
         // 2. 获取语言策略
         JudgeStrategy strategy = judgeStrategyFactory.getStrategy(languageEnum);
 
-        // 3. 执行判题（模板方法）
-        if (strategy instanceof AbstractJudgeStrategy abstractStrategy) {
-            abstractStrategy.doJudge(submission, problem);
-        }
+        strategy.doJudge(submission, problem);
     }
 }

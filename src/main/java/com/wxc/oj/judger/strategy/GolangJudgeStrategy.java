@@ -5,17 +5,14 @@ import com.wxc.oj.judger.AbstractJudgeStrategy;
 import org.springframework.stereotype.Service;
 
 /**
- * C++判题策略
+ * Golang判题策略
  */
 @Service
-public class CppJudgeStrategy extends AbstractJudgeStrategy {
-
-
+public class GolangJudgeStrategy extends AbstractJudgeStrategy {
 
     @Override
-    public LanguageConfigEnum getLanguageConfig() {
-        // 从配置中读取C++的配置（替代硬编码的LanguageConfigs.CPP）
-        return LanguageConfigEnum.CPP;
+    protected LanguageConfigEnum getLanguageConfig() {
+        return LanguageConfigEnum.GOLANG;
     }
 
     @Override

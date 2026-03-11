@@ -16,20 +16,12 @@ import java.util.stream.Collectors;
 public enum SubmissionLanguageEnum {
     JAVA("java"),
     CPP("cpp"),
-    C("c"),
-    PYTHON("python");
+    PYTHON("python"),
+    GOLANG("golang");
 
     private final String value;
 
 
-//    SubmissionLanguageEnum(String value) {
-//        this.value = value;
-//    }
-//
-//
-//    public String getValue() {
-//        return value;
-//    }
 
     /**
      * 获取值列表

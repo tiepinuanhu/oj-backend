@@ -1,6 +1,7 @@
 package com.wxc.oj.enums;
 
 import com.wxc.oj.model.req.sandbox.LanguageConfig;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.Arrays;
 
@@ -19,7 +20,7 @@ public enum LanguageConfigEnum {
             .sourceFileName("main.cpp")
             .build()),
 
-    JAVA("java",com.wxc.oj.model.req.sandbox.LanguageConfig.builder()
+    JAVA("java",LanguageConfig.builder()
             .cmpArgs(Arrays.asList("/usr/bin/javac", "Main.java"))
             .exeArgs(Arrays.asList("/usr/bin/java", "Main"))
             .envs(Arrays.asList("PATH=/usr/bin:/bin"))
@@ -32,7 +33,17 @@ public enum LanguageConfigEnum {
             .envs(Arrays.asList("PATH=/usr/bin:/bin"))
             .exeFileName("main.py")
             .sourceFileName("main.py")
-            .build());
+            .build()
+    ),
+
+    GOLANG("golang", LanguageConfig.builder()
+            .cmpArgs(Arrays.asList("go", "build", "-o", "main", "main.go"))
+            .exeArgs(Arrays.asList("main"))
+            .envs(Arrays.asList("PATH=/usr/bin:/bin"))
+            .exeFileName("main")
+            .sourceFileName("main.go")
+            .build()
+    );
 
     private final String value;
     private final LanguageConfig config;
