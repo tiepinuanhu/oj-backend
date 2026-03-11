@@ -76,9 +76,9 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
 
 
     // 需要子类重写的方法
-    protected abstract String getExecutableFileName();
+//    protected abstract String getExecutableFileName();
     protected abstract LanguageConfig getLanguageConfig();
-    protected abstract  boolean needCompile();
+    protected abstract boolean needCompile();
 
 
     /**
@@ -91,7 +91,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
         // 读取对应的测试样例
         String input = readInputFile(problemId, caseIndex);
 
-       log.info("读取到第"+ caseIndex + "个测试样例输入: " + input);
+        log.info("读取到第"+ caseIndex + "个测试样例输入: " + input);
 
 
         // 运行第index个测试样例
@@ -190,7 +190,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
         Long problemId = problem.getId();
         String sourceCode = submission.getSourceCode();
         SubmissionResult submissionResult = new SubmissionResult();
-
+        LanguageConfig languageConfig = getLanguageConfig();
         // 1. 更新状态为编译中
         changeStatus(submission, submissionResult, SubmissionStatusEnum.COMPILING);
 
@@ -206,7 +206,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
                 // 检查是否有编译错误
                 checkCompileError(submission, submissionResult, compileResult);
                 Map<String, String> fileIds = compileResult.getFileIds();
-                executableFileId = fileIds.get(getExecutableFileName());
+                executableFileId = fileIds.get(languageConfig.getExeFileName());
             }
 
             // 读取判题配置
@@ -258,28 +258,6 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
                     }
                 }
             }
-            //❗❗❗❗❗❗❗❗❗❗ 给normalproblem队列发送消息，修改题目的统计数据 ❗❗❗❗❗❗❗
-
-            // 3. 获取编译后的文件ID（解释型语言为源码标识）
-//            executableFileId = getExecutableFileId(compileResult);
-//
-//            // 4. 更新状态为判题中
-//            changeStatus(submission, submissionResult, SubmissionStatusEnum.JUDGING);
-//
-//            // 5. 读取测试用例
-//            List<TestCase> testCaseList = readTestCases(problemId);
-//
-//            // 6. 遍历测试用例执行判题（核心）
-//            List<JudgeCaseResult> judgeCaseResults = executeTestCases(submission, problem, testCaseList);
-//
-//            // 7. 计算总分和资源使用
-//            calculateTotalScoreAndResources(submissionResult, judgeCaseResults);
-//
-//            // 8. 更新最终状态
-//            changeStatus(submission, submissionResult, judgeCaseResults);
-//
-//            // 9. 发送消息更新题目统计数据
-//            sendProblemStatMessage(submissionId);
 
             ProblemMessage problemMessage = new ProblemMessage();
             problemMessage.setSid(submissionId);
@@ -302,21 +280,14 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
         }
     }
 
-    /**
-     * 发送消息更新题目统计数据
-     * @param submissionId
-     */
-    private void sendProblemStatMessage(Long submissionId) {
-//        ProblemMessage problemMessage = new ProblemMessage();
-//        problemMessage.setSid(submissionId);
-//        rabbitTemplate.convertAndSend(RabbitConstant.PROBLEM_EXCHANGE, RabbitConstant.PROBLEM_ROUTING_KEY, problemMessage);
-    }
+
 
 
     private Result compileCode(String sourceCode) {
+        // ❗调用子类的方法，获取子类特有的语言评测指令
         LanguageConfig languageConfig = getLanguageConfig();
         Cmd cmd = new Cmd();
-        // args
+        // ❗获取编译指令和参数
         List<String> args = languageConfig.getCmpArgs();
         cmd.setArgs(args);
         // envs
@@ -348,7 +319,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
         sandBoxRequest.setCmd(cmds);
 
         // 调用sandboxRun编译
-//        SandBoxResponse response = sandboxRun.compile(sandBoxRequest);
+        // ❗❗❗使用RPC调用沙箱服务
         List<Result> results = sandboxFeignClient.run(sandBoxRequest);
         Result result = results.get(0);
         log.info(result.toString());
@@ -470,23 +441,6 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
     }
 
     /**
-     * 执行所有测试用例（可扩展为并发执行）
-     */
-//    protected List<JudgeCaseResult> executeTestCases(Submission submission, Problem problem, List<TestCase> testCaseList) throws IOException {
-//        List<JudgeCaseResult> judgeCaseResults = new ArrayList<>();
-//        JudgeConfig judgeConfig = JSONUtil.toBean(problem.getJudgeConfig(), JudgeConfig.class);
-//
-//        // 串行执行（可改为线程池并发，注意沙箱并发限制）
-//        for (TestCase testCase : testCaseList) {
-//            JudgeCaseResult caseResult = executeSingleTestCase(problem.getId(), testCase, judgeConfig);
-//            judgeCaseResults.add(caseResult);
-//        }
-//        return judgeCaseResults;
-//    }
-
-
-
-    /**
      * 读取输入文件内容
      */
     protected String readInputFile(Long problemId, int caseIndex) throws IOException {
@@ -501,70 +455,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
         return content.toString();
     }
 
-    /**
-     * 读取标准答案文件内容
-     */
-//    protected String readAnswerFile(Long problemId, int caseIndex) throws IOException {
-//        String ansPath = dataPath + File.separator + problemId + File.separator + caseIndex + ".out";
-//        StringBuilder content = new StringBuilder();
-//        try (BufferedReader reader = new BufferedReader(new FileReader(ansPath))) {
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                content.append(line).append("\n");
-//            }
-//        }
-//        return content.toString();
-//    }
 
-    /**
-     * 处理运行结果（比对输出、判断状态）
-     */
-//    protected void handleRunResult(Long problemId, int caseIndex, JudgeCaseResult caseResult, Result runResult, JudgeConfig judgeConfig) throws IOException {
-//        // 1. 设置资源使用
-//        long timeCost = runResult.getRunTime() / 1000_000; // ns -> ms
-//        long memoryUsed = runResult.getMemory();
-//        caseResult.setTimeCost(timeCost);
-//        caseResult.setMemoryUsed(memoryUsed);
-//
-//        String runStatus = runResult.getStatus();
-//        if (runStatus.equals(SandBoxResponseStatus.ACCEPTED.getValue())) {
-//            // 运行成功：比对输出
-//            String output = runResult.getFiles().get(STDOUT);
-//            caseResult.setOutput(output);
-//
-//            // 写入临时ans文件并比对
-//            writeTempAnsFile(problemId, caseIndex, output);
-//            boolean accepted = checker(problemId, caseIndex);
-//            deleteDotAnsFile(problemId, caseIndex);
-//
-//            // 判断是否AC/WA/TLE/MLE
-//            if (accepted) {
-//                caseResult.setJudgeResult(JudgeResultEnum.ACCEPTED.getValue());
-//                caseResult.setGainScore(caseResult.getFullScore());
-//            } else {
-//                caseResult.setJudgeResult(JudgeResultEnum.WRONG_ANSWER.getValue());
-//                caseResult.setGainScore(0);
-//            }
-//            if (timeCost > judgeConfig.getTimeLimit()) {
-//                caseResult.setJudgeResult(JudgeResultEnum.TIME_LIMIT_EXCEEDED.getValue());
-//                caseResult.setGainScore(0);
-//            }
-//            if (memoryUsed / 1024 / 1024 > judgeConfig.getMemoryLimit()) {
-//                caseResult.setJudgeResult(JudgeResultEnum.MEMORY_LIMIT_EXCEEDED.getValue());
-//                caseResult.setGainScore(0);
-//            }
-//        } else if (runStatus.equals(SandBoxResponseStatus.TIME_LIMIT_EXCEEDED.getValue())) {
-//            caseResult.setJudgeResult(JudgeResultEnum.TIME_LIMIT_EXCEEDED.getValue());
-//            caseResult.setGainScore(0);
-//        } else if (runStatus.equals(SandBoxResponseStatus.MEMORY_LIMIT_EXCEEDED.getValue())) {
-//            caseResult.setJudgeResult(JudgeResultEnum.MEMORY_LIMIT_EXCEEDED.getValue());
-//            caseResult.setGainScore(0);
-//        } else {
-//            // 其他错误（RE/OLE等）
-//            caseResult.setJudgeResult(JudgeResultEnum.RUNTIME_ERROR.getValue());
-//            caseResult.setGainScore(0);
-//        }
-//    }
 
 
 

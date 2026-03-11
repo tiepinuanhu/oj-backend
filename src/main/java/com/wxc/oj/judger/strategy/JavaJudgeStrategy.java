@@ -12,22 +12,12 @@ import org.springframework.stereotype.Service;
 public class JavaJudgeStrategy extends AbstractJudgeStrategy {
 
     @Override
-    protected String getExecutableFileName() {
-        return "Main.class";
-    }
-
-    @Override
     public LanguageConfig getLanguageConfig() {
-        // 从配置中读取C++的配置（替代硬编码的LanguageConfigs.CPP）
-        return LanguageConfigs.CPP;
+        return LanguageConfigs.JAVA;
     }
-
-
 
     @Override
     protected boolean needCompile() {
         return true;
     }
-
-
 }
