@@ -1,6 +1,7 @@
 package com.wxc.oj.judger.strategy;
 
 import com.wxc.oj.constant.LanguageConfigs;
+import com.wxc.oj.enums.LanguageConfigEnum;
 import com.wxc.oj.judger.AbstractJudgeStrategy;
 import com.wxc.oj.model.req.sandbox.LanguageConfig;
 import org.springframework.stereotype.Service;
@@ -12,8 +13,8 @@ import org.springframework.stereotype.Service;
 public class JavaJudgeStrategy extends AbstractJudgeStrategy {
 
     @Override
-    public LanguageConfig getLanguageConfig() {
-        return LanguageConfigs.JAVA;
+    public LanguageConfigEnum getLanguageConfig() {
+        return LanguageConfigEnum.JAVA;
     }
 
     @Override

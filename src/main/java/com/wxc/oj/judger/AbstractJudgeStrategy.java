@@ -7,6 +7,7 @@ import cn.hutool.json.JSONUtil;
 import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.constant.RabbitMQConstant;
 import com.wxc.oj.enums.JudgeResultEnum;
+import com.wxc.oj.enums.LanguageConfigEnum;
 import com.wxc.oj.enums.sandbox.SandBoxResponseStatus;
 import com.wxc.oj.enums.submission.SubmissionStatusEnum;
 import com.wxc.oj.exception.BusinessException;
@@ -77,7 +78,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
 
     // 需要子类重写的方法
 //    protected abstract String getExecutableFileName();
-    protected abstract LanguageConfig getLanguageConfig();
+    protected abstract LanguageConfigEnum getLanguageConfig();
     protected abstract boolean needCompile();
 
 
@@ -190,7 +191,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
         Long problemId = problem.getId();
         String sourceCode = submission.getSourceCode();
         SubmissionResult submissionResult = new SubmissionResult();
-        LanguageConfig languageConfig = getLanguageConfig();
+        LanguageConfig languageConfig = getLanguageConfig().getConfig();
         // 1. 更新状态为编译中
         changeStatus(submission, submissionResult, SubmissionStatusEnum.COMPILING);
 
@@ -285,7 +286,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
 
     private Result compileCode(String sourceCode) {
         // ❗调用子类的方法，获取子类特有的语言评测指令
-        LanguageConfig languageConfig = getLanguageConfig();
+        LanguageConfig languageConfig = getLanguageConfig().getConfig();
         Cmd cmd = new Cmd();
         // ❗获取编译指令和参数
         List<String> args = languageConfig.getCmpArgs();
@@ -338,7 +339,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
      * @return
      */
     protected Result runCode(String sourceCode, String exeFileId, String input) {
-        LanguageConfig languageConfig = getLanguageConfig();
+        LanguageConfig languageConfig = getLanguageConfig().getConfig();
         Cmd cmd = new Cmd();
         // args
         List<String> args = languageConfig.getExeArgs();
