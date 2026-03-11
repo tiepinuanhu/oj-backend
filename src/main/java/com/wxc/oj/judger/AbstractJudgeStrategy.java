@@ -207,6 +207,9 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
                 // 检查是否有编译错误
                 checkCompileError(submission, submissionResult, compileResult);
                 Map<String, String> fileIds = compileResult.getFileIds();
+                // cpp 获取的是可执行文件的id: main
+                // java获取的是class文件的id：Main
+                // python不需要编译，所以不需要获取文件id
                 executableFileId = fileIds.get(languageConfig.getExeFileName());
             }
 
@@ -378,6 +381,11 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
          *          "fileId": "5LWIZAA45JHX4Y4Z" // 这个缓存文件的 ID 来自上一个请求返回的 fileIds
          *      }
          *  }
+         *  "copyIn": {
+         *      "Main.class": {
+         *          "fileId": "5LWIZAA45JHX4Y4Z" // 这个缓存文件的 ID 来自上一个请求返回的 fileIds
+         *      }
+         *  }
          * 解释性语言：python
          * copyIn下面传入文件名称和文件源码，使用的是MemoryFile
          *  "copyIn": {
@@ -406,7 +414,7 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy {
             String stdout = result.getFiles().getStdout();
             log.info("代码输出 = " + stdout);
         } else {
-            log.info("运行失败");
+            log.error("运行失败");
             log.info(result.getError());
         }
         return result;

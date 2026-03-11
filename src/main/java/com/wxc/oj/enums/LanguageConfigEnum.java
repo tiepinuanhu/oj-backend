@@ -21,10 +21,12 @@ public enum LanguageConfigEnum {
             .build()),
 
     JAVA("java",LanguageConfig.builder()
+            // 编译 javac Main.java
             .cmpArgs(Arrays.asList("/usr/bin/javac", "Main.java"))
+            //运行 java Main
             .exeArgs(Arrays.asList("/usr/bin/java", "Main"))
             .envs(Arrays.asList("PATH=/usr/bin:/bin"))
-            .exeFileName("Main")
+            .exeFileName("Main.class")
             .sourceFileName("Main.java")
             .build()),
 
