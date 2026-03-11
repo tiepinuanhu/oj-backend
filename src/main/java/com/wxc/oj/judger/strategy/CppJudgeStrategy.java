@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class CppJudgeStrategy extends AbstractJudgeStrategy {
 
-
-
     @Override
     public LanguageConfigEnum getLanguageConfig() {
         // 从配置中读取C++的配置（替代硬编码的LanguageConfigs.CPP）
