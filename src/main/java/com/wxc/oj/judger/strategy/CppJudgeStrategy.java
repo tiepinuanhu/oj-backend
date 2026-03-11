@@ -1,6 +1,7 @@
-package com.wxc.oj.judger;
+package com.wxc.oj.judger.strategy;
 
 import com.wxc.oj.constant.LanguageConfigs;
+import com.wxc.oj.judger.AbstractJudgeStrategy;
 import com.wxc.oj.model.req.sandbox.LanguageConfig;
 import org.springframework.stereotype.Service;
 
@@ -8,11 +9,11 @@ import org.springframework.stereotype.Service;
  * C++判题策略
  */
 @Service
-public class JavaJudgeStrategy extends AbstractJudgeStrategy {
+public class CppJudgeStrategy extends AbstractJudgeStrategy {
 
     @Override
     protected String getExecutableFileName() {
-        return "Main.class";
+        return "main";
     }
 
     @Override
@@ -21,12 +22,9 @@ public class JavaJudgeStrategy extends AbstractJudgeStrategy {
         return LanguageConfigs.CPP;
     }
 
-
-
     @Override
     protected boolean needCompile() {
         return true;
     }
-
 
 }

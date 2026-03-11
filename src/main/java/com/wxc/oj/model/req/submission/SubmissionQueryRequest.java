@@ -11,7 +11,7 @@ import java.io.Serializable;
  * submission的ID，用户，语言，评测结果（ACCEPTED, WRONG ANSWER...）
  */
 @Data
-public class SubmissionQueryDTO extends PageRequest implements Serializable {
+public class SubmissionQueryRequest extends PageRequest implements Serializable {
 
     private Long problemId;
 

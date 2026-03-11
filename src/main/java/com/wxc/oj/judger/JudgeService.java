@@ -4,8 +4,4 @@ import java.io.IOException;
 
 public interface JudgeService {
     void doJudge(Long submissionId) throws IOException;
-
-
-
-
 }

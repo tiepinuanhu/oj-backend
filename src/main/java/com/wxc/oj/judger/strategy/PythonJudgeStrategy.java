@@ -1,6 +1,7 @@
-package com.wxc.oj.judger;
+package com.wxc.oj.judger.strategy;
 
 import com.wxc.oj.constant.LanguageConfigs;
+import com.wxc.oj.judger.AbstractJudgeStrategy;
 import com.wxc.oj.model.req.sandbox.LanguageConfig;
 import org.springframework.stereotype.Service;
 

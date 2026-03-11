@@ -347,6 +347,8 @@ create table submission
     KEY `idx_user_id` (`user_id`) COMMENT '按用户ID查询提交记录',
     KEY `idx_problem_id` (`problem_id`) COMMENT '按题目ID查询提交记录'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='代码提交记录表';
+CREATE INDEX idx_user_del_time
+    ON submission (user_id, is_deleted, create_time DESC);
 INSERT INTO db_oj.submission (id, user_id, problem_id, source_code, submission_result, status, status_description, language, create_time, update_time, is_deleted) VALUES (2005107467779833858, 2004743556063502337, 1, '#include <iostream>
 #include <cstdio>
 

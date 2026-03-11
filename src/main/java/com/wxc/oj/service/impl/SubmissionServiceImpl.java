@@ -16,7 +16,7 @@ import com.wxc.oj.model.queueMessage.SubmissionStatusMessage;
 import com.wxc.oj.model.submission.SubmissionResult;
 import com.wxc.oj.model.queueMessage.SubmissionMessage;
 import com.wxc.oj.model.req.submission.SubmissionAddRequest;
-import com.wxc.oj.model.req.submission.SubmissionQueryDTO;
+import com.wxc.oj.model.req.submission.SubmissionQueryRequest;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.Submission;
 import com.wxc.oj.model.po.User;
@@ -122,20 +122,20 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
     }
 
     @Override
-    public Page<ListSubmissionVO> listByPage(SubmissionQueryDTO submissionQueryDTO) {
-        long current = submissionQueryDTO.getCurrent();
-        long size = submissionQueryDTO.getPageSize();
-        Long problemId = submissionQueryDTO.getProblemId();
-        Long userId = submissionQueryDTO.getUserId();
-        String language = submissionQueryDTO.getLanguage();
-        String judgeResult = submissionQueryDTO.getJudgeResult();
-        log.info("❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗judge = " + judgeResult);
+    public Page<ListSubmissionVO> listByPage(SubmissionQueryRequest submissionQueryRequest) {
+        long current = submissionQueryRequest.getCurrent();
+        long size = submissionQueryRequest.getPageSize();
+        Long problemId = submissionQueryRequest.getProblemId();
+        Long userId = submissionQueryRequest.getUserId();
+        String language = submissionQueryRequest.getLanguage();
+        String judgeResult = submissionQueryRequest.getJudgeResult();
 
         LambdaQueryWrapper<Submission> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ObjectUtils.isNotEmpty(problemId), Submission::getProblemId, problemId)
                 .eq(ObjectUtils.isNotEmpty(userId), Submission::getUserId, userId)
                 .eq(StringUtils.isNotBlank(language), Submission::getLanguage, language)
-                .eq(StringUtils.isNotEmpty(judgeResult) && !judgeResult.equals("不限结果"),Submission::getStatusDescription, judgeResult);
+                .eq(StringUtils.isNotEmpty(judgeResult)
+                        && !judgeResult.equals("不限结果"),Submission::getStatusDescription, judgeResult);
         queryWrapper.orderByDesc(Submission::getCreateTime);
         Page<Submission> submissionPage = this.page(new Page<>(current, size), queryWrapper);
         Page<ListSubmissionVO> submissionVOPage = this.getSubmissionVOPage(submissionPage);
@@ -255,6 +255,7 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
         submission.setProblemId(problemId);
         submission.setUserId(submissionAddRequest.getUserId());
         submission.setSourceCode(submissionAddRequest.getSourceCode());
+        submission.setCodeLength(submissionAddRequest.getSourceCode().length());
         submission.setLanguage(submissionAddRequest.getLanguage());
 
         // 初始化判题状态为 NOT_SUBMITTED

@@ -27,6 +27,10 @@ public class Submission implements Serializable {
     private String submissionResult;
     private Integer status;
 
+    private Integer codeLength;
+
+    private Integer score;
+
     private String statusDescription;
 
     private String language;
@@ -36,6 +40,10 @@ public class Submission implements Serializable {
     private Date updateTime;
 
     private Integer isDeleted;
+
+    private Long memoryUsed;
+
+    private Long totalTime;
 
     private static final long serialVersionUID = 1L;
 }

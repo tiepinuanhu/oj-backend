@@ -47,7 +47,7 @@ import static com.wxc.oj.constant.RabbitMQConstant.SUBMISSION_STATUS_TOPIC;
  * 子类重写抽象方法实现特定的功能
  */
 @Slf4j(topic = "💯AbstractJudgeStrategy💯")
-public abstract class AbstractJudgeStrategy implements JudgeStrategy{
+public abstract class AbstractJudgeStrategy implements JudgeStrategy {
     @Resource
     protected SandboxFeignClient sandboxFeignClient;
     @Resource
@@ -74,6 +74,8 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
     protected static final int MAX_OUTPUT_SIZE = 10240;
 
 
+
+    // 需要子类重写的方法
     protected abstract String getExecutableFileName();
     protected abstract LanguageConfig getLanguageConfig();
     protected abstract  boolean needCompile();
@@ -570,6 +572,10 @@ public abstract class AbstractJudgeStrategy implements JudgeStrategy{
                                  SubmissionResult submissionResult, SubmissionStatusEnum statusUpd) {
         submissionResult.setStatus(statusUpd.getStatus());
         submissionResult.setStatusDescription(statusUpd.getDescription());
+        Integer score = submissionResult.getScore();
+        if (score != null) {
+            submissionUpd.setScore(score);
+        }
         submissionUpd.setStatus(statusUpd.getStatus());
         submissionUpd.setStatusDescription(statusUpd.getDescription());
         submissionUpd.setSubmissionResult(JSONUtil.toJsonStr(submissionResult));

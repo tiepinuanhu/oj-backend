@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
 * @createDate 2024-03-08 20:51:25
 */
 @Service
-public class
-TagServiceImpl extends ServiceImpl<TagMapper, Tag>
+public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     implements TagService {
 
     @Resource

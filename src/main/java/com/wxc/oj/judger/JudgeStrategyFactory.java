@@ -1,6 +1,9 @@
 package com.wxc.oj.judger;
 
 import com.wxc.oj.enums.submission.SubmissionLanguageEnum;
+import com.wxc.oj.judger.strategy.CppJudgeStrategy;
+import com.wxc.oj.judger.strategy.JavaJudgeStrategy;
+import com.wxc.oj.judger.strategy.PythonJudgeStrategy;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 

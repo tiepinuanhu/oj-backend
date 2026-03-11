@@ -7,7 +7,7 @@ import com.wxc.oj.common.ErrorCode;
 import com.wxc.oj.common.ResultUtils;
 import com.wxc.oj.exception.BusinessException;
 import com.wxc.oj.model.req.submission.SubmissionAddRequest;
-import com.wxc.oj.model.req.submission.SubmissionQueryDTO;
+import com.wxc.oj.model.req.submission.SubmissionQueryRequest;
 import com.wxc.oj.model.po.Submission;
 import com.wxc.oj.model.vo.dayRank.DailyRankVO;
 import com.wxc.oj.model.vo.submission.ListSubmissionVO;
@@ -65,9 +65,9 @@ public class SubmissionController {
      */
     @PostMapping("/list/page")
     public BaseResponse<Page<ListSubmissionVO>> listSubmissionByPage(@RequestBody
-                                                         SubmissionQueryDTO submissionQueryDTO) {
+                                                                     SubmissionQueryRequest submissionQueryRequest) {
         Page<ListSubmissionVO> submissionVOPage
-                = submissionService.listByPage(submissionQueryDTO);
+                = submissionService.listByPage(submissionQueryRequest);
         return ResultUtils.success(submissionVOPage);
     }
 

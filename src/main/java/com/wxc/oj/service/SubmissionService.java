@@ -2,7 +2,7 @@ package com.wxc.oj.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wxc.oj.model.req.submission.SubmissionAddRequest;
-import com.wxc.oj.model.req.submission.SubmissionQueryDTO;
+import com.wxc.oj.model.req.submission.SubmissionQueryRequest;
 import com.wxc.oj.model.po.Submission;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxc.oj.model.vo.submission.ListSubmissionVO;
@@ -19,7 +19,7 @@ public interface SubmissionService extends IService<Submission> {
 
     ProblemStatisticsVO getProblemStatisticsVO(Long problemId);
 
-    Page<ListSubmissionVO> listByPage(SubmissionQueryDTO submissionQueryDTO);
+    Page<ListSubmissionVO> listByPage(SubmissionQueryRequest submissionQueryRequest);
 
     SubmissionVO submitCode(SubmissionAddRequest submissionAddRequest);
 
