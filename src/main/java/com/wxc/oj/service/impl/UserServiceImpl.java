@@ -153,23 +153,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param request
      * @return
      */
-    public User getLoginUser(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        // 先判断是否已登录
-        if (token != null && token.startsWith("Bearer ")) {
-            // 提取Bearer后面的token部分
-            token = token.substring(7);
-//            UserVO userVO = JwtUtils.parseUserVOFromToken(token);
-//            Long currentUserId = userVO.getId();
-            Long currentUserId = JwtUtils.getUserIdFromToken(token);
-            String s = stringRedisTemplate.opsForValue().get("user:" + currentUserId);
-            User currentUser = JSONUtil.toBean(s, User.class);
-            log.info("当前用户为：{}", currentUser);
-            return currentUser;
-        } else {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-    }
+
 
 //    @Override
 //    public User getLoginUser(HttpServletRequest request) {
