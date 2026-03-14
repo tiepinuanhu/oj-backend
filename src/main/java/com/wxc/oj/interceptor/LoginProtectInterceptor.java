@@ -76,6 +76,7 @@ public class LoginProtectInterceptor implements HandlerInterceptor {
             Long userId = JwtUtils.getUserIdFromToken(token_jwt);
             String s = stringRedisTemplate.opsForValue().get(RedisConstant.CACHE_USER_KEY + userId);
             User user = JSONUtil.toBean(s, User.class);
+            // 将用户信息保存到ThreadLocal中
             UserVO userVO = userService.getUserVO(user);
             UserHolder.saveUser(userVO);
             UserHolder.saveToken(token_jwt);
@@ -90,9 +91,13 @@ public class LoginProtectInterceptor implements HandlerInterceptor {
         return false;
     }
 
+    /**
+     * 请求处理完成后, 在ThreadLocal中移除用户
+     */
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        UserHolder.removeUser();
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
+                                Object handler, Exception ex) {
+        UserHolder.clear();
     }
 
 }

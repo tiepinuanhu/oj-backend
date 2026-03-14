@@ -3,25 +3,35 @@ package com.wxc.oj.utils;
 import com.wxc.oj.model.vo.UserVO;
 
 public class UserHolder {
-    private static final ThreadLocal<UserVO> tl = new ThreadLocal<>();
+    private static final ThreadLocal<UserVO> userTl = new ThreadLocal<>();
+    private static final ThreadLocal<String> tokenTl = new ThreadLocal<>();
 
-
-    private static String token = new String();
-    public static void saveUser(UserVO user){
-        tl.set(user);
-    }
-    public static void saveToken(String token1){
-        token = token1;
+    public static void saveUser(UserVO user) {
+        userTl.set(user);
     }
 
-    public static UserVO getUser(){
-        return tl.get();
-    }
-    public static String getToken(){
-        return token;
+    public static void saveToken(String token) {
+        tokenTl.set(token);
     }
 
-    public static void removeUser(){
-        tl.remove();
+    public static UserVO getUser() {
+        return userTl.get();
+    }
+
+    public static String getToken() {
+        return tokenTl.get();
+    }
+
+    public static void removeUser() {
+        userTl.remove();
+    }
+
+    public static void removeToken() {
+        tokenTl.remove();
+    }
+
+    public static void clear() {
+        removeUser();
+        removeToken();
     }
 }
