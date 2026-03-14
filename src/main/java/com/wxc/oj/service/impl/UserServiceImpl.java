@@ -18,6 +18,7 @@ import com.wxc.oj.service.UserService;
 import com.wxc.oj.model.vo.UserVO;
 import com.wxc.oj.utils.JwtUtils;
 import com.wxc.oj.utils.SqlUtils;
+import com.wxc.oj.utils.UserHolder;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +52,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     StringRedisTemplate stringRedisTemplate;
 
-    @Resource
-    private JwtUtils jwtUtils;
 
 
     /**
@@ -155,36 +154,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
 
 
-//    @Override
-//    public User getLoginUser(HttpServletRequest request) {
-//        String token = request.getHeader("token");
-//        if (jwtHelper.isExpiration(token)) {
-//            // token失效, 视作未登录
-//            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-//        }
-//        // 校验成功, 获取id查询, 封装, 返回
-//        int userId = jwtHelper.getUserId(token).intValue();
-//        User loginUser = this.getById(userId);
-//        return loginUser;
-//    }
-
-//    /**
-//     * 获取当前登录用户（允许未登录）
-//     * @param request
-//     * @return
-//     */
-//    public UserVO getLoginUserPermitNull(HttpServletRequest request) {
-//        // 先判断是否已登录
-//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-//        User currentUser = (User) userObj;
-//        if (currentUser == null || currentUser.getId() == null) {
-//            return null;
-//        }
-//        // 从数据库查询（追求性能的话可以注释，直接走缓存）
-//        long userId = currentUser.getId();
-//        UserVO userVO = getUserVO(getById(userId));
-//        return userVO;
-//    }
     /**
      * TODO:
      *      1. 校验token有效性(是否过期)
@@ -203,38 +172,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 是否为管理员
-     * @param request
+     * @param
      * @return
      */
-    public boolean isAdmin(HttpServletRequest request) {
+    public boolean isAdmin() {
         // 仅管理员可查询
-        User loginUser = this.getLoginUser(request);
+        UserVO loginUser = UserHolder.getUser();
         return isAdmin(loginUser);
     }
 
 
-    public boolean isAdmin(User user) {
+    public boolean isAdmin(UserVO user) {
         return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
 
-//    @Override
-//    public boolean userLogout(HttpServletRequest request) {
-//        return false;
-//    }
 
-//    @Override
-//    public LoginUserVO getLoginUserVO(User user) {
-//        return null;
-//    }
 
     /**
      * 用户注销
      * 使用Session存储会更好
      * @param
      */
-
     public boolean userLogout(HttpServletRequest request) {
-        User loginUser = getLoginUser(request);
+        UserVO loginUser = UserHolder.getUser();
         Boolean deleted = stringRedisTemplate.delete("user:" + loginUser.getId());
         if (!deleted) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "登出失败，token不存在");
@@ -245,15 +205,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
 
-//    @Override
-//    public LoginUserVO getUserVO(User user) {
-//        if (user == null) {
-//            return null;
-//        }
-//        LoginUserVO loginUserVO = new LoginUserVO();
-//        BeanUtils.copyProperties(user, loginUserVO);
-//        return loginUserVO;
-//    }
+
 
     /**
      * user -> userVO(给前端看的)
@@ -270,7 +222,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
 
-    public List<UserVO> getUserVO(List<User> userList) {
+    public List<UserVO> getUserVOList(List<User> userList) {
         if (CollUtil.isEmpty(userList)) {
             return new ArrayList<>();
         }

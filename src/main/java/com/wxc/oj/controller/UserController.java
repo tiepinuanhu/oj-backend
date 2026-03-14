@@ -14,6 +14,7 @@ import com.wxc.oj.model.vo.login.LoginVO;
 import com.wxc.oj.model.vo.UserVO;
 import com.wxc.oj.openFeign.ImgBBFeignClient;
 import com.wxc.oj.service.UserService;
+import com.wxc.oj.utils.UserHolder;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -125,17 +126,11 @@ public class UserController {
      * 通过token获取当前登录用户
      */
     @GetMapping("/get/login")
-    public BaseResponse<UserVO> getLoginUser(HttpServletRequest request) {
-        User user = userService.getLoginUser(request);
-        return ResultUtils.success(userService.getUserVO(user));
+    public BaseResponse<UserVO> getLoginUser() {
+        UserVO user = UserHolder.getUser();
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_LOGIN_ERROR);
+        return ResultUtils.success(user);
     }
-    /**
-     * 获取当前登录用户
-     *
-     * @param request
-     * @return
-     */
-
 
     /**
      * 创建用户(管理员)
@@ -205,7 +200,7 @@ public class UserController {
     @GetMapping("/get/vo")
     public BaseResponse queryUserVOByAccount(String userAccount) {
         List<User> userList = userService.queryUserVOByAccount(userAccount);
-        List<UserVO> userVOList = userService.getUserVO(userList);
+        List<UserVO> userVOList = userService.getUserVOList(userList);
         return ResultUtils.success(userVOList);
     }
 
@@ -238,7 +233,7 @@ public class UserController {
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
         Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
-        List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
+        List<UserVO> userVO = userService.getUserVOList(userPage.getRecords());
         userVOPage.setRecords(userVO);
         return ResultUtils.success(userVOPage);
     }
@@ -264,13 +259,12 @@ public class UserController {
      * 当前登录用户更新个人信息
      */
     @PostMapping("/update/my")
-    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-                                              HttpServletRequest request) {
+    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 当前用户
-        User loginUser = userService.getLoginUser(request);
+        UserVO loginUser = UserHolder.getUser();
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());
@@ -283,13 +277,11 @@ public class UserController {
      * 查询自己信息
      */
     @GetMapping("/get/my")
-    public BaseResponse queryMyUser(@RequestBody UserQueryRequest userQueryRequest,
-                                    HttpServletRequest request) {
+    public BaseResponse queryMyUser(@RequestBody UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 当前用户
-        User loginUser = userService.getLoginUser(request);
+        UserVO loginUser = UserHolder.getUser();
         if (loginUser == null) {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
         }

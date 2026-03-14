@@ -1,6 +1,5 @@
 package com.wxc.oj.annotation;
 
-import com.wxc.oj.constant.UserConstant;
 import com.wxc.oj.enums.UserRoleEnum;
 
 import java.lang.annotation.ElementType;

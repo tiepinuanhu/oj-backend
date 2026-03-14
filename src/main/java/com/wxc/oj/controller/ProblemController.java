@@ -13,12 +13,13 @@ import com.wxc.oj.model.req.problem.*;
 import com.wxc.oj.model.po.ContestProblem;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.User;
+import com.wxc.oj.model.vo.UserVO;
 import com.wxc.oj.model.vo.problem.ListProblemVO;
 import com.wxc.oj.model.vo.problem.ProblemVO;
 import com.wxc.oj.model.vo.contest.ContestProblemSimpleVO;
 import com.wxc.oj.service.*;
+import com.wxc.oj.utils.UserHolder;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -204,18 +205,17 @@ public class ProblemController {
      * 删除题目(逻辑删除)
      */
     @PostMapping("delete")
-    public BaseResponse deleteProblem(@RequestBody DeleteRequest deleteRequest,
-                                      HttpServletRequest request) {
+    public BaseResponse deleteProblem(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userService.getLoginUser(request);
+        UserVO user = UserHolder.getUser();
         Long id = deleteRequest.getId();
         // 判断是否存在
         Problem oldProblem = problemService.getById(id);
         ThrowUtils.throwIf(oldProblem == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        if (!oldProblem.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
+        if (!oldProblem.getUserId().equals(user.getId()) && !userService.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = problemService.removeById(id);
@@ -272,7 +272,7 @@ public class ProblemController {
      * GET方法 不脱敏
      */
     @GetMapping("/get")
-    public BaseResponse<Problem> getProblemById(Long id, HttpServletRequest request) {
+    public BaseResponse<Problem> getProblemById(Long id) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -280,7 +280,7 @@ public class ProblemController {
         if (problem == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        User loginUser = userService.getLoginUser(request);
+        UserVO loginUser = UserHolder.getUser();
         if (!problem.getId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "不能查看其它用户的题目的全部信息");
         }
