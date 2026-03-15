@@ -36,6 +36,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.beans.BeanUtils.copyProperties;
 
@@ -65,22 +66,33 @@ public class ProblemServiceImpl extends ServiceImpl<ProblemMapper, Problem> impl
 
 
 
+    /**
+     * 根据id获取题目详情
+     * 先从Redis中获取,如果没有再从数据库中获取,并将数据存入Redis
+     * @param problemId
+     * @return
+     */
     @Override
     public ProblemVO getProblemVOById(Long problemId) {
         if (problemId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "非法题目id");
         }
+        // 先从Redis中获取
         if (stringRedisTemplate.hasKey(RedisConstant.CACHE_PROBLEM_KEY + problemId)) {
             String s = stringRedisTemplate.opsForValue().get(RedisConstant.CACHE_PROBLEM_KEY + problemId);
             ProblemVO problemVO = JSONUtil.toBean(s, ProblemVO.class);
             return problemVO;
         }
+        // 从数据库中获取
         Problem problem = this.getById(problemId);
         if (problem == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "题目不存在");
         }
+        // 将数据存入Redis
         ProblemVO problemVOWithContent = this.problem2VO(problem);
-        stringRedisTemplate.opsForValue().set(RedisConstant.CACHE_PROBLEM_KEY + problemId, JSONUtil.toJsonStr(problemVOWithContent));
+        String key = RedisConstant.CACHE_PROBLEM_KEY + problemId;
+        String value = JSONUtil.toJsonStr(problemVOWithContent);
+        stringRedisTemplate.opsForValue().set(key, value, RedisConstant.CACHE_PROBLEM_TTL, TimeUnit.MINUTES);
         return problemVOWithContent;
     }
 

@@ -10,6 +10,16 @@ spring:
         virtual-host: /
         publisher-confirm-type: correlated # 确认模式, 给生产者发送确认消息
         publisher-returns: true # 开启失败回调
+        listener:
+            simple:
+                retry:
+                    enabled: true
+                    max-attempts: 3
+                    initial-interval: 1000
+                    multiplier: 2
+                    max-interval: 10000
+                default-requeue-rejected: false # 重试耗尽后不重回队列
+                acknowledge-mode: auto
     data:
         redis:
             host: 47.110.79.29
@@ -37,7 +47,7 @@ spring:
 mybatis-plus:
     configuration:
         # 配置MyBatis日志
-        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     global-config:
         db-config:
             logic-delete-field: isDeleted # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)

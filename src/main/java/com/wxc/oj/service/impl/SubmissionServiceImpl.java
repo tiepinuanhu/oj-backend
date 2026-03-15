@@ -264,6 +264,10 @@ public class SubmissionServiceImpl extends ServiceImpl<SubmissionMapper, Submiss
         submissionResult.setStatusDescription(SubmissionStatusEnum.SUBMITTED.getDescription());
         submissionResult.setScore(0);
 
+        submission.setScore(0);
+        submission.setMemoryUsed(0L);
+        submission.setTotalTime(0L);
+
         submission.setSubmissionResult(JSONUtil.toJsonStr(submissionResult));
 
         // 初始submission保存到数据库

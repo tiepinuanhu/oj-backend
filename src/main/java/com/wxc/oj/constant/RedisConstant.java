@@ -5,6 +5,7 @@ package com.wxc.oj.constant;
  * @date 2025/11/30 21:08
  */
 public class RedisConstant {
+    public static final long CACHE_PROBLEM_TTL = 60;
     public static String CACHE_PROBLEM_KEY = "oj:cache:problem:"; // +  pid
     public static String CACHE_USER_KEY = "oj:cache:user:"; // +  uid / token
     public static String CONTEST_KEY = "oj:cache:contest:"; // +  contest id 缓存比赛状态
@@ -28,4 +29,7 @@ public class RedisConstant {
 
 
     public static final String CONTEST_RANK_KEY = "oj:rank:contest:"; // oj:rank:contest:{contestId}
+
+    public static final String SUBMISSION_LOCK_KEY = "oj:lock:submission:"; // oj:lock:submission:{submissionId}
+    public static final int LOCK_LEASE_SECONDS = 300; // 锁的租约时间，单位秒，防止死锁
 }
