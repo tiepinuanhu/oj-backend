@@ -17,16 +17,16 @@
             <!-- 冗余字段-->
             <result property="status" column="status" jdbcType="INTEGER"/>
             <result property="statusDescription" column="status_description" jdbcType="VARCHAR"/>
-<!--            <result property="codeLength" column="code_length" jdbcType="INTEGER"/>-->
-<!--            <result property="score" column="score" jdbcType="INTEGER"/>-->
-<!--            <result property="memoryUsed" column="memory_used" jdbcType="BIGINT"/>-->
-<!--            <result property="totalTime" column="total_time" jdbcType="BIGINT"/>-->
+            <result property="codeLength" column="code_length" jdbcType="INTEGER"/>
+            <result property="score" column="score" jdbcType="INTEGER"/>
+            <result property="memoryUsed" column="memory_used" jdbcType="BIGINT"/>
+            <result property="totalTime" column="total_time" jdbcType="BIGINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,problem_id,
-        source_code,submission_result, score,code_length,
-        language, create_time,update_time,is_deleted,status,statusDescription
+        source_code,submission_result, score,code_length,memory_used,total_time,
+        language, create_time,update_time,is_deleted,status,status_description
     </sql>
 
     <select id="getStatusDistribution"
