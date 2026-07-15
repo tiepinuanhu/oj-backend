@@ -58,7 +58,8 @@ public class ProblemController {
     @Resource
     TagService tagService;
 
-
+    @Resource
+    private ProblemEsService problemEsService;
 
     private static final String UPLOAD_ROOT = "src/main/resources/data";
 
@@ -219,6 +220,9 @@ public class ProblemController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = problemService.removeById(id);
+        if (b) {
+            problemEsService.deleteById(id);
+        }
         return ResultUtils.success(b);
     }
 
@@ -301,5 +305,16 @@ public class ProblemController {
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<ListProblemVO> listProblemVOPage = problemService.listProblemVO(problemQueryRequest);
         return ResultUtils.success(listProblemVOPage);
+    }
+
+    /**
+     * 基于 Elasticsearch 的题目全文检索（content = title + 题面）
+     */
+    @PostMapping("/search")
+    public BaseResponse<Page<ListProblemVO>> searchProblemByEs(@RequestBody ProblemEsQueryRequest request) {
+        long size = request.getPageSize();
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        Page<ListProblemVO> page = problemEsService.search(request);
+        return ResultUtils.success(page);
     }
 }
