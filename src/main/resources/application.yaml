@@ -25,6 +25,8 @@ spring:
             host: 10.104.59.0
             port: 6379
             password: wxc123...
+    elasticsearch:
+        uris: http://10.104.59.0:9200
     jackson:
         # 格式为yyyy-MM-dd HH:mm:ss
         date-format: yyyy-MM-dd HH:mm:ss
