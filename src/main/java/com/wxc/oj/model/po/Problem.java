@@ -56,6 +56,10 @@ public class Problem implements Serializable {
 
     private Integer isPublic;
 
+    /**
+     * C++ 标程源码（仅管理员可见/可改）
+     */
+    private String standardCode;
 
     private static final long serialVersionUID = 1L;
 }

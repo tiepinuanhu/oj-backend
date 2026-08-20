@@ -14,8 +14,11 @@ import com.wxc.oj.model.po.ContestProblem;
 import com.wxc.oj.model.po.Problem;
 import com.wxc.oj.model.po.User;
 import com.wxc.oj.model.vo.UserVO;
+import com.wxc.oj.model.vo.problem.GenerateCasesVO;
 import com.wxc.oj.model.vo.problem.ListProblemVO;
 import com.wxc.oj.model.vo.problem.ProblemVO;
+import com.wxc.oj.model.vo.problem.StandardSolutionVO;
+import com.wxc.oj.model.vo.problem.UploadStandardVO;
 import com.wxc.oj.model.vo.contest.ContestProblemSimpleVO;
 import com.wxc.oj.service.*;
 import com.wxc.oj.utils.UserHolder;
@@ -61,7 +64,49 @@ public class ProblemController {
     @Resource
     private ProblemEsService problemEsService;
 
+    @Resource
+    private ProblemCaseService problemCaseService;
+
     private static final String UPLOAD_ROOT = "src/main/resources/data";
+
+    /**
+     * 上传 C++ 标程，保存到 problem.standard_code；若已有 .in 则重生成 .out
+     */
+    @PostMapping("uploadStandard")
+    @AuthCheck(mustRole = ADMIN)
+    public BaseResponse<UploadStandardVO> uploadStandard(@RequestBody UploadStandardRequest request) {
+        return ResultUtils.success(problemCaseService.uploadStandard(request));
+    }
+
+    /**
+     * 查询题目标程（样例管理回填）
+     */
+    @GetMapping("getStandard")
+    @AuthCheck(mustRole = ADMIN)
+    public BaseResponse<StandardSolutionVO> getStandard(@RequestParam Long problemId) {
+        return ResultUtils.success(problemCaseService.getStandard(problemId));
+    }
+
+    /**
+     * 第二步：根据已上传标程 + 请求体 cases.input 生成样例；全部成功才落盘
+     */
+    @PostMapping("generateCases")
+    @AuthCheck(mustRole = ADMIN)
+    public BaseResponse<GenerateCasesVO> generateCases(@RequestBody GenerateCasesRequest request) {
+        return ResultUtils.success(problemCaseService.generateCases(request));
+    }
+
+    /**
+     * 第二步（文件）：上传多个 .in，或一个/多个包含 .in 的 zip；
+     * 后端解析后用标程生成 .out，并覆盖已有样例
+     */
+    @PostMapping("generateCasesByFiles")
+    @AuthCheck(mustRole = ADMIN)
+    public BaseResponse<GenerateCasesVO> generateCasesByFiles(
+            @RequestParam("problemId") Long problemId,
+            @RequestParam("files") List<MultipartFile> files) {
+        return ResultUtils.success(problemCaseService.generateCasesByFiles(problemId, files));
+    }
 
     /**
      * 实现了接收一个文件到服务端

@@ -1,10 +1,14 @@
 remote:
-    address: 10.104.59.0
+    address: 10.104.19.108
 
 
 spring:
+    servlet:
+        multipart:
+            max-file-size: 20MB
+            max-request-size: 50MB
     rabbitmq:
-        addresses: 10.104.59.0
+        addresses: ${remote.address}
         username: admin
         password: wxc123...
         virtual-host: /
@@ -22,11 +26,11 @@ spring:
                 acknowledge-mode: auto
     data:
         redis:
-            host: 10.104.59.0
+            host: ${remote.address}
             port: 6379
             password: wxc123...
     elasticsearch:
-        uris: http://10.104.59.0:9200
+        uris: http://${remote.address}:9200
     jackson:
         # 格式为yyyy-MM-dd HH:mm:ss
         date-format: yyyy-MM-dd HH:mm:ss
@@ -41,7 +45,7 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
         # Druid的其他属性配置 springboot3整合情况下,数据库连接信息必须在Druid属性下!
         druid:
-            url: jdbc:mysql://10.104.59.0:3306/db_oj
+            url: jdbc:mysql://${remote.address}:3306/db_oj
             username: root
             password: wxc123...
             driver-class-name: com.mysql.cj.jdbc.Driver
